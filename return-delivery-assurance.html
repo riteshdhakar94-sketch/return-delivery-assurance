@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Return Delivery Assurance — Cohort View v7</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f4f5f7; padding: 24px; color: #1a1a2e;
+  }
+  .widget {
+    background: #fff; border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.09);
+    padding: 20px 24px 28px; max-width: 1080px; position: relative;
+  }
+  /* ── Header ── */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
+  }
+  .header-left { display: flex; align-items: center; gap: 8px; }
+  .title { font-size: 16px; font-weight: 700; color: #111; }
+  .info-wrap { position: relative; display: inline-flex; }
+  .info-icon {
+    width: 17px; height: 17px; border-radius: 50%;
+    background: #e0e4ea; color: #555; font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; cursor: help;
+  }
+  .info-icon:hover + .info-tip { display: block; }
+  .info-tip {
+    display: none; position: absolute; top: 24px; left: 0;
+    background: #fff; border: 1px solid #e0e4ea; border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12); padding: 13px 15px;
+    width: 340px; z-index: 600; font-size: 11px; color: #444; line-height: 1.65;
+  }
+  .info-tip strong { color: #111; }
+  .info-tip::before {
+    content:''; position:absolute; top:-6px; left:12px;
+    border-left:6px solid transparent; border-right:6px solid transparent;
+    border-bottom:6px solid #e0e4ea;
+  }
+  .tag {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; color: #555; background: #f0f2f5;
+    border-radius: 6px; padding: 5px 10px;
+  }
+  /* ── KPI Row ── */
+  .kpi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+  .kpi-card {
+    border-radius: 10px; padding: 14px 18px;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    transition: opacity 0.2s;
+  }
+  .kpi-card.dimmed { opacity: 0.3; }
+  .kpi-card.ed { background: #fff8f0; border: 1.5px solid #fcd9b0; }
+  .kpi-card.dr { background: #fff6f6; border: 1.5px solid #fbc4c4; }
+  .kpi-left { display: flex; flex-direction: column; gap: 3px; }
+  .kpi-label { font-size: 10px; font-weight: 700; letter-spacing: 0.4px; display: flex; align-items: center; gap: 6px; }
+  .kpi-card.ed .kpi-label { color: #b85c00; }
+  .kpi-card.dr .kpi-label { color: #a93226; }
+  .kpi-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .kpi-val { font-size: 22px; font-weight: 800; }
+  .kpi-card.ed .kpi-val { color: #c87200; }
+  .kpi-card.dr .kpi-val { color: #c0392b; }
+  .kpi-sub { font-size: 11px; color: #bbb; }
+  .kpi-cta {
+    font-size: 11px; font-weight: 600; border-radius: 6px;
+    padding: 6px 12px; cursor: pointer; border: 1px solid;
+    white-space: nowrap; align-self: center;
+  }
+  .kpi-card.ed .kpi-cta { color: #c87200; background: #fff3e0; border-color: #f5c07a; }
+  .kpi-card.dr .kpi-cta { color: #c0392b; background: #fdecea; border-color: #f5a9a0; }
+  /* ── View Toggle ── */
+  .view-toggle { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+  .vt-label { font-size: 11px; font-weight: 600; color: #aaa; margin-right: 2px; }
+  .vt-btn {
+    padding: 6px 16px; font-size: 12px; font-weight: 600;
+    border-radius: 20px; border: 1.5px solid #e0e4ea;
+    background: #fff; color: #777; cursor: pointer; transition: all 0.15s;
+  }
+  .vt-btn.active { background: #111; color: #fff; border-color: #111; }
+  /* ── Legend ── */
+  .legend { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+  .leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #888; }
+  .leg-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+  /* ── Table ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 820px; }
+  /* Axis label header row */
+  .axis-th-corner {
+    text-align: left; padding: 7px 12px;
+    font-size: 10px; font-weight: 700; color: #888;
+    border-bottom: 1px solid #edf0f4;
+    vertical-align: bottom;
+  }
+  .axis-th-col {
+    text-align: center; padding: 7px 10px;
+    font-size: 11px; font-weight: 700; color: #555;
+    border-bottom: 1px solid #edf0f4;
+    letter-spacing: 0.2px;
+  }
+  .axis-th-pending {
+    text-align: center; padding: 7px 10px;
+    font-size: 10px; font-weight: 700;
+    border-bottom: 1px solid #edf0f4;
+    border-left: 2px solid #e0e4ea;
+  }
+  /* Date header row */
+  thead th.date-col {
+    font-size: 10px; font-weight: 400; color: #aaa;
+    padding: 8px 10px; text-align: center;
+    border-bottom: 2px solid #edf0f4;
+    white-space: nowrap;
+  }
+  thead th.date-col .d-notation {
+    display: block; font-size: 12px; font-weight: 700;
+    color: #333; margin-bottom: 2px; letter-spacing: 0px;
+  }
+  thead th.row-axis-th {
+    text-align: left; padding: 8px 12px;
+    font-size: 10px; font-weight: 700; color: #888;
+    border-bottom: 2px solid #edf0f4;
+  }
+  thead th.pending-hdr-th {
+    text-align: center; padding: 8px 10px;
+    border-bottom: 2px solid #edf0f4;
+    border-left: 2px solid #e0e4ea;
+  }
+  .pending-hdr-main { font-size: 10px; font-weight: 700; color: #c0392b; }
+  .pending-hdr-sub  { font-size: 9px; font-weight: 500; color: #aaa; margin-top: 2px; display: block; }
+  /* Data rows */
+  td { padding: 0; border: 1px solid #f0f2f5; }
+  td.row-hdr-td {
+    padding: 10px 12px; border: none;
+    border-bottom: 1px solid #f0f2f5; vertical-align: middle; min-width: 130px;
+  }
+  .rh-wrap { display: flex; align-items: center; gap: 6px; }
+  .rh-date { font-size: 13px; font-weight: 700; color: #222; }
+  .rh-sub  { font-size: 10px; color: #ccc; display: block; margin-top: 1px; }
+  /* ── OFD Flag ── */
+  .ofd-flag {
+    position: relative; display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #fff3cd; border: 1px solid #ffc107;
+    color: #856404; font-size: 9px; font-weight: 800;
+    cursor: help; flex-shrink: 0;
+  }
+  .ofd-flag:hover .ofd-tip { display: block; }
+  .ofd-tip {
+    display: none; position: absolute; top: 22px; left: 0;
+    background: #fff; border: 1px solid #e0e4ea;
+    border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.13);
+    padding: 0; width: 280px; z-index: 500; text-align: left;
+  }
+  .ofd-tip::before {
+    content:''; position:absolute; top:-6px; left:10px;
+    border-left:6px solid transparent; border-right:6px solid transparent;
+    border-bottom:6px solid #e0e4ea;
+  }
+  .ofd-tip-hdr { padding: 10px 14px 8px; border-bottom: 1px solid #f0f2f5; font-size: 11px; font-weight: 700; color: #222; }
+  .ofd-tip-sub { font-size: 10px; color: #aaa; font-weight: 400; margin-top: 3px; }
+  .ofd-tip-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 14px; border-bottom: 1px solid #f8f9fb; font-size: 11px;
+  }
+  .ofd-tip-row:last-child { border-bottom: none; }
+  .ofd-st { font-size: 10px; font-weight: 700; width: 14px; text-align: center; }
+  .ofd-st.ok  { color: #27ae60; }
+  .ofd-st.bad { color: #c0392b; }
+  .ofd-name { flex: 1; color: #333; font-weight: 500; }
+  .ofd-info { font-size: 10px; color: #aaa; }
+  .ofd-import {
+    font-size: 10px; font-weight: 700; color: #2563eb;
+    background: #eef4ff; border: 1px solid #c3d6ff;
+    border-radius: 4px; padding: 3px 7px; text-decoration: none;
+  }
+  .ofd-import:hover { background: #dceeff; }
+  .ofd-tip-foot { padding: 8px 14px; }
+  .ofd-tip-foot a {
+    display: block; text-align: center; font-size: 11px; font-weight: 600;
+    color: #fff; background: #2563eb; border-radius: 6px; padding: 7px; text-decoration: none;
+  }
+  /* ── Cohort Cells ── */
+  .cell-inner {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 9px 6px; min-height: 58px; cursor: pointer;
+    position: relative; transition: filter 0.1s;
+  }
+  .cell-inner:hover { filter: brightness(0.92); }
+  .cell-inner:hover .cell-go { opacity: 1; }
+  .cell-pct   { font-size: 13px; font-weight: 700; }
+  .cell-items { font-size: 10px; color: #aaa; margin-top: 1px; }
+  .cell-go {
+    position: absolute; bottom: 3px; right: 4px;
+    font-size: 9px; font-weight: 700; color: #2563eb;
+    opacity: 0; transition: opacity 0.12s;
+  }
+  .c-na        { background: #fafafa; cursor: default !important; }
+  .c-ontime    { background: #eafaf1; }
+  .c-late1     { background: #fffde7; }
+  .c-late2     { background: #fff3e0; }
+  .c-late3     { background: #fdecea; }
+  .c-live      { background: #f0f8ff; }
+  .c-exceeded  { background: #f5f0ff; }
+  .c-agg       { background: #fdf6ec; }
+  .c-na .cell-pct       { color: #ddd; }
+  .c-ontime .cell-pct   { color: #1e8449; }
+  .c-late1 .cell-pct    { color: #c9a600; }
+  .c-late2 .cell-pct    { color: #c87200; }
+  .c-late3 .cell-pct    { color: #c0392b; }
+  .c-live .cell-pct     { color: #2980b9; }
+  .c-exceeded .cell-pct { color: #7e22ce; }
+  .c-agg .cell-pct      { color: #a04000; }
+  .cell-inner.is-diag::after {
+    content:''; position:absolute; top:3px; right:3px;
+    width:5px; height:5px; border-radius:50%;
+    background:#27ae60; opacity:0.4;
+  }
+  .c-exceeded-note { font-size:9px; color:#9333ea; margin-top:2px; font-weight:600; }
+  /* ── Pending Column ── */
+  td.pending-td { border-left: 2px solid #e0e4ea; }
+  .c-pend-zero     { background: #f4fdf7; }
+  .c-pend-low      { background: #fffde7; }
+  .c-pend-mid      { background: #fff3e0; }
+  .c-pend-hi       { background: #fdecea; }
+  .c-pend-live     { background: #f0f8ff; }
+  .c-pend-exceeded { background: #f5f0ff; }
+  .pend-cumul   { font-size: 11px; font-weight: 700; color: #555; }
+  .pend-pct     { font-size: 13px; font-weight: 800; }
+  .pend-label   { font-size: 9px; font-weight: 500; color: #aaa; margin-top: 1px; }
+  .pend-zero    { font-size: 12px; font-weight: 700; color: #27ae60; }
+  .pend-note    { font-size: 9px; margin-top: 2px; }
+  /* ── Aggregate row separator ── */
+  tr.agg-row td { border-top: 2px dashed #e0d8cc; }
+  tr.agg-row td.row-hdr-td { border-top: 2px dashed #e0d8cc; }
+  .agg-label {
+    font-size: 10px; font-weight: 700; color: #a04000;
+    background: #fdf3e7; border-radius: 4px;
+    padding: 2px 6px; display: inline-block; margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="widget">
+  <!-- ── Header ── -->
+  <div class="header">
+    <div class="header-left">
+      <span class="title">Return Delivery Assurance</span>
+      <div class="info-wrap">
+        <div class="info-icon">i</div>
+        <div class="info-tip">
+          <strong>Return Delivery Assurance</strong><br><br>
+          Tracks return shipments across two reconciliation stages:<br><br>
+          <strong>1. Expected vs Delivered</strong> — Compares returns scheduled for Out for Delivery (OFD) on a given date against what the courier actually delivered. A gap is a courier shortfall.<br><br>
+          <strong>2. Delivered vs Received</strong> — Compares courier-delivered returns against what the warehouse physically acknowledged. A gap is a warehouse receipt shortfall.<br><br>
+          OFD data is a pre-shipment manifest uploaded per courier partner, indicating shipments scheduled for delivery on a given date. If not uploaded, expected counts will be understated and delivered quantities may appear to exceed 100%.
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div class="tag">⏱ Affected by Filter</div>
+      <div class="tag">📍 Facility: All</div>
+    </div>
+  </div>
+  <!-- ── KPI Cards ── -->
+  <div class="kpi-row">
+    <div class="kpi-card ed" id="kpi-ed">
+      <div class="kpi-left">
+        <div class="kpi-label"><span class="kpi-dot" style="background:#e67e22"></span>EXPECTED VS DELIVERED · D TO D-5</div>
+        <div class="kpi-val">₹2.3L</div>
+        <div class="kpi-sub">65 items promised but not yet delivered</div>
+      </div>
+      <div class="kpi-cta">View items →</div>
+    </div>
+    <div class="kpi-card dr" id="kpi-dr">
+      <div class="kpi-left">
+        <div class="kpi-label"><span class="kpi-dot" style="background:#e74c3c"></span>DELIVERED VS RECEIVED · D TO D-5</div>
+        <div class="kpi-val">₹6.0L</div>
+        <div class="kpi-sub">142 items delivered but not warehouse-acknowledged</div>
+      </div>
+      <div class="kpi-cta">View items →</div>
+    </div>
+  </div>
+  <!-- ── View Toggle ── -->
+  <div class="view-toggle">
+    <span class="vt-label">VIEW</span>
+    <button class="vt-btn active" id="btn-ed" onclick="switchView('ed')">📦 Expected → Delivered</button>
+    <button class="vt-btn" id="btn-dr" onclick="switchView('dr')">🏭 Delivered → Received</button>
+  </div>
+  <!-- ── Legend ── -->
+  <div class="legend">
+    <div class="leg-item"><div class="leg-swatch" style="background:#eafaf1;border:1px solid #a9dfbf"></div>On time</div>
+    <div class="leg-item"><div class="leg-swatch" style="background:#fffde7;border:1px solid #f9e79f"></div>1 day late</div>
+    <div class="leg-item"><div class="leg-swatch" style="background:#fff3e0;border:1px solid #fad7a0"></div>2 days late</div>
+    <div class="leg-item"><div class="leg-swatch" style="background:#fdecea;border:1px solid #f1948a"></div>3+ days late</div>
+    <div class="leg-item"><div class="leg-swatch" style="background:#f0f8ff;border:1px solid #a9cce3"></div>Live</div>
+    <div class="leg-item"><div class="leg-swatch" style="background:#f5f0ff;border:1px solid #c4b5fd"></div>&gt;100% — OFD may be missing</div>
+    <div class="leg-item"><div class="leg-swatch" style="background:#fdf6ec;border:1px solid #f5cba7"></div>D-6 to D-30 aggregate</div>
+    <div class="leg-item">
+      <div style="width:15px;height:15px;border-radius:50%;background:#fff3cd;border:1px solid #ffc107;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#856404;flex-shrink:0">!</div>
+      OFD manifest partial
+    </div>
+  </div>
+  <!-- ── Cohort Table ── -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr id="axis-row"></tr>
+        <tr id="thead-row"></tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+<script>
+const COLS = [
+  { d: 'D',   date: 'Feb 28' },
+  { d: 'D-1', date: 'Feb 27' },
+  { d: 'D-2', date: 'Feb 26' },
+  { d: 'D-3', date: 'Feb 25' },
+  { d: 'D-4', date: 'Feb 24' },
+  { d: 'D-5', date: 'Feb 23' },
+];
+const VIEW_META = {
+  ed: {
+    rowAxisLabel: 'Expected on ↓',
+    colAxisLabel: 'Delivered on →',
+    pendingLabel: 'Not yet delivered',
+    cumulLabel:   'delivered of expected',
+  },
+  dr: {
+    rowAxisLabel: 'Delivered on ↓',
+    colAxisLabel: 'Received on →',
+    pendingLabel: 'Not yet received',
+    cumulLabel:   'received of delivered',
+  }
+};
+const datasets = {
+  ed: {
+    rows: [
+      { date:'D',   sub:'Feb 28', live:true,  ofd:false,
+        cells:[{pct:35,items:180},null,null,null,null,null],
+        pending:{pct:65,items:330,live:true,exceeded:false} },
+      { date:'D-1', sub:'Feb 27', live:false, ofd:false,
+        cells:[{pct:5,items:21},{pct:82,items:344},null,null,null,null],
+        pending:{pct:13,items:55,live:false,exceeded:false} },
+      { date:'D-2', sub:'Feb 26', live:false, ofd:true,
+        cells:[{pct:1,items:2},{pct:2,items:4},{pct:155,items:170,exceeded:true},null,null,null],
+        pending:{pct:0,items:0,live:false,exceeded:true} },
+      { date:'D-3', sub:'Feb 25', live:false, ofd:false,
+        cells:[null,null,null,{pct:100,items:290},null,null],
+        pending:{pct:0,items:0,live:false,exceeded:false} },
+      { date:'D-4', sub:'Feb 24', live:false, ofd:false,
+        cells:[null,null,null,null,{pct:100,items:245},null],
+        pending:{pct:0,items:0,live:false,exceeded:false} },
+      { date:'D-5', sub:'Feb 23', live:false, ofd:false,
+        cells:[null,null,null,null,null,{pct:95,items:200}],
+        pending:{pct:5,items:10,live:false,exceeded:false} },
+      { date:'D-6 to D-30', sub:'Jan 29 – Feb 22', live:false, ofd:false, isAggregate:true,
+        cells:[
+          {pct:1.1,items:20},
+          {pct:1.3,items:23},
+          {pct:1.6,items:29},
+          {pct:1.7,items:31},
+          {pct:1.2,items:22},
+          {pct:0.7,items:13},
+        ],
+        onTimePct: 89,
+        pending:{pct:2.4,items:43,live:false,exceeded:false} }
+    ]
+  },
+  dr: {
+    rows: [
+      { date:'D',   sub:'Feb 28', live:true,  ofd:false,
+        cells:[{pct:53,items:95},null,null,null,null,null],
+        pending:{pct:47,items:85,live:true,exceeded:false} },
+      { date:'D-1', sub:'Feb 27', live:false, ofd:false,
+        cells:[{pct:15,items:55},{pct:70,items:255},null,null,null,null],
+        pending:{pct:15,items:55,live:false,exceeded:false} },
+      { date:'D-2', sub:'Feb 26', live:false, ofd:false,
+        cells:[null,{pct:0.9,items:3},{pct:99,items:345},null,null,null],
+        pending:{pct:0.6,items:2,live:false,exceeded:false} },
+      { date:'D-3', sub:'Feb 25', live:false, ofd:false,
+        cells:[null,null,null,{pct:100,items:290},null,null],
+        pending:{pct:0,items:0,live:false,exceeded:false} },
+      { date:'D-4', sub:'Feb 24', live:false, ofd:false,
+        cells:[null,null,null,null,{pct:100,items:245},null],
+        pending:{pct:0,items:0,live:false,exceeded:false} },
+      { date:'D-5', sub:'Feb 23', live:false, ofd:false,
+        cells:[null,null,null,null,null,{pct:100,items:200}],
+        pending:{pct:0,items:0,live:false,exceeded:false} },
+      { date:'D-6 to D-30', sub:'Jan 29 – Feb 22', live:false, ofd:false, isAggregate:true,
+        cells:[
+          {pct:0.8,items:14},
+          {pct:1.0,items:18},
+          {pct:1.2,items:22},
+          {pct:1.4,items:25},
+          {pct:0.9,items:16},
+          {pct:0.4,items:7},
+        ],
+        onTimePct: 92,
+        pending:{pct:1.5,items:27,live:false,exceeded:false} }
+    ]
+  }
+};
+let activeView = 'ed';
+function cellClass(ri, ci, live, exceeded, isAgg) {
+  if (isAgg) return 'c-agg';
+  if (exceeded) return 'c-exceeded';
+  if (live && ci === 0 && ri === 0) return 'c-live';
+  const lag = ri - ci;
+  if (lag === 0) return 'c-ontime';
+  if (lag === 1) return 'c-late1';
+  if (lag === 2) return 'c-late2';
+  return 'c-late3';
+}
+function pendingClass(p) {
+  if (p.exceeded) return 'c-pend-exceeded';
+  if (p.live)     return 'c-pend-live';
+  if (p.pct === 0) return 'c-pend-zero';
+  if (p.pct < 5)   return 'c-pend-low';
+  if (p.pct < 20)  return 'c-pend-mid';
+  return 'c-pend-hi';
+}
+function pendingColor(p) {
+  if (p.exceeded) return '#7e22ce';
+  if (p.live)     return '#2980b9';
+  if (p.pct === 0) return '#27ae60';
+  if (p.pct < 5)   return '#c9a600';
+  if (p.pct < 20)  return '#c87200';
+  return '#c0392b';
+}
+function ofdFlagHTML(date, sub) {
+  return `<div class="ofd-flag">!
+    <div class="ofd-tip">
+      <div class="ofd-tip-hdr">
+        OFD Manifest — ${date} (${sub})
+        <div class="ofd-tip-sub">1 of 3 providers uploaded. Delivered may exceed 100% of expected.</div>
+      </div>
+      <div class="ofd-tip-row">
+        <span class="ofd-st ok">✓</span><span class="ofd-name">Delhivery</span>
+        <span class="ofd-info">280 items · 9:12 AM</span>
+      </div>
+      <div class="ofd-tip-row">
+        <span class="ofd-st bad">✗</span><span class="ofd-name">Ekart</span>
+        <a class="ofd-import" href="#import-ekart">Import ↗</a>
+      </div>
+      <div class="ofd-tip-row">
+        <span class="ofd-st bad">✗</span><span class="ofd-name">XpressBees</span>
+        <a class="ofd-import" href="#import-xb">Import ↗</a>
+      </div>
+      <div class="ofd-tip-foot"><a href="#import-all">Import all missing →</a></div>
+    </div>
+  </div>`;
+}
+function render(view) {
+  const ds = datasets[view];
+  const meta = VIEW_META[view];
+  document.getElementById('axis-row').innerHTML = `
+    <th class="axis-th-corner">${meta.rowAxisLabel}</th>
+    <th class="axis-th-col" colspan="${COLS.length}" style="color:#444;letter-spacing:0.2px">${meta.colAxisLabel}</th>
+    <th class="axis-th-pending" style="color:#c0392b;font-size:10px;font-weight:700">Still Pending</th>
+  `;
+  document.getElementById('thead-row').innerHTML = `
+    <th class="row-axis-th"></th>
+    ${COLS.map(c => `
+      <th class="date-col">
+        <span class="d-notation">${c.d}</span>
+        ${c.date}
+      </th>`).join('')}
+    <th class="pending-hdr-th">
+      <span class="pending-hdr-main">Unresolved</span>
+      <span class="pending-hdr-sub">${meta.pendingLabel}</span>
+    </th>
+  `;
+  document.getElementById('tbody').innerHTML = ds.rows.map((row, ri) => {
+    const isAgg = !!row.isAggregate;
+    const visibleSum = row.cells.reduce((s, c) => s + (c ? c.pct : 0), 0);
+    const totalDelivered = isAgg
+      ? (row.onTimePct + visibleSum).toFixed(0)
+      : visibleSum.toFixed(0);
+    const rowHdr = `
+      <td class="row-hdr-td"${isAgg ? ' style="border-top:2px dashed #e0d8cc"' : ''}>
+        <div class="rh-wrap">
+          <div>
+            <span class="rh-date">${row.date}</span>
+            <span class="rh-sub">${row.sub}</span>
+            ${isAgg ? '<span class="agg-label">Aggregate</span>' : ''}
+          </div>
+          ${row.live ? '<span style="font-size:9px;font-weight:800;background:#fff4e0;color:#e67e22;border-radius:3px;padding:2px 5px;margin-left:4px">LIVE</span>' : ''}
+          ${row.ofd ? ofdFlagHTML(row.date, row.sub) : ''}
+        </div>
+      </td>`;
+    const cells = row.cells.map((cell, ci) => {
+      if (cell === null) {
+        return `<td${isAgg ? ' style="border-top:2px dashed #e0d8cc"':''}>
+          <div class="cell-inner c-na"><span class="cell-pct">—</span></div></td>`;
+      }
+      const exceeded = !!cell.exceeded;
+      const cls = cellClass(ri, ci, row.live, exceeded, isAgg);
+      const isDiag = (ri === ci) && !exceeded && !isAgg;
+      const pStr = cell.pct >= 1 ? `${Math.round(cell.pct)}%` : `${cell.pct}%`;
+      return `<td${isAgg ? ' style="border-top:2px dashed #e0d8cc"':''}>
+        <div class="cell-inner ${cls}${isDiag?' is-diag':''}"
+             onclick="handleCellClick('${row.date}','${COLS[ci].d}','${view}')">
+          <span class="cell-pct">${pStr}</span>
+          <span class="cell-items">${cell.items} items</span>
+          ${exceeded ? `<span class="c-exceeded-note">OFD may be missing</span>` : ''}
+          <span class="cell-go">→ View</span>
+        </div>
+      </td>`;
+    }).join('');
+    const p = row.pending;
+    const pcls = pendingClass(p);
+    const pcol = pendingColor(p);
+    let pendContent;
+    if (p.exceeded) {
+      pendContent = `
+        <span class="pend-zero" style="color:#7e22ce">${totalDelivered}%</span>
+        <span class="pend-note" style="color:#9333ea;font-size:9px">OFD data may be missing</span>
+      `;
+    } else if (p.pct === 0) {
+      pendContent = `<div class="pend-zero">✓ None</div>`;
+    } else {
+      const pStr = p.pct < 1 ? `${p.pct}%` : `${Math.round(p.pct)}%`;
+      pendContent = `
+        <span class="pend-pct" style="color:${pcol}">${pStr}</span>
+        ${p.live ? `<span class="pend-note" style="color:#aaa">day in progress</span>` : ''}
+      `;
+    }
+    const pendClickable = (p.items > 0 || p.exceeded) && !p.live;
+    return `<tr${isAgg?' class="agg-row"':''}>
+      ${rowHdr}
+      ${cells}
+      <td class="pending-td"${isAgg?' style="border-top:2px dashed #e0d8cc"':''}>
+        <div class="cell-inner ${pcls}"
+             style="min-height:58px;align-items:center"
+             ${pendClickable?`onclick="handlePendingClick('${row.date}','${view}')"`:''}
+        >
+          ${pendContent}
+          ${pendClickable?'<span class="cell-go">→ View</span>':''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function switchView(view) {
+  activeView = view;
+  document.getElementById('btn-ed').classList.toggle('active', view === 'ed');
+  document.getElementById('btn-dr').classList.toggle('active', view === 'dr');
+  document.getElementById('kpi-ed').classList.toggle('dimmed', view !== 'ed');
+  document.getElementById('kpi-dr').classList.toggle('dimmed', view !== 'dr');
+  render(view);
+}
+function handleCellClick(rowDate, colD, view) {
+  const meta = VIEW_META[view];
+  alert(`↗ Redirecting to datatable\n\n${meta.rowAxisLabel.replace(' ↓','')}: ${rowDate}\n${meta.colAxisLabel.replace(' →','')}: ${colD}\n\n(Opens datatable filtered for this segment.)`);
+}
+function handlePendingClick(rowDate, view) {
+  alert(`↗ Redirecting to datatable\n\nShowing all unresolved items for: ${rowDate}\n\n(Opens datatable filtered to pending items.)`);
+}
+render('ed');
+</script>
+</body>
+</html>
