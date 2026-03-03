@@ -15,7 +15,6 @@
     box-shadow: 0 2px 12px rgba(0,0,0,0.09);
     padding: 20px 24px 24px; max-width: 820px; position: relative;
   }
-
   /* ── Header ── */
   .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
   .header-left { display: flex; align-items: center; gap: 8px; }
@@ -23,24 +22,21 @@
   .info-wrap { position: relative; display: inline-flex; }
   .info-icon { width: 17px; height: 17px; border-radius: 50%; background: #e0e4ea; color: #555; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: help; }
   .info-icon:hover + .info-tip { display: block; }
-  .info-tip { display: none; position: absolute; top: 24px; left: 0; background: #fff; border: 1px solid #e0e4ea; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); padding: 13px 15px; width: 340px; z-index: 600; font-size: 11px; color: #444; line-height: 1.65; }
+  .info-tip { display: none; position: absolute; top: 24px; left: 0; background: #fff; border: 1px solid #e0e4ea; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); padding: 13px 15px; width: 320px; z-index: 600; font-size: 11px; color: #444; line-height: 1.65; }
   .info-tip strong { color: #111; }
   .info-tip::before { content:''; position:absolute; top:-6px; left:12px; border-left:6px solid transparent; border-right:6px solid transparent; border-bottom:6px solid #e0e4ea; }
   .tag { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #555; background: #f0f2f5; border-radius: 6px; padding: 5px 10px; }
-
   /* ── KPI Row ── */
   .kpi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
   .kpi-card { border-radius: 10px; padding: 14px 18px; display: flex; align-items: flex-start; justify-content: space-between; cursor: pointer; transition: filter 0.15s; gap: 12px; }
   .kpi-card:hover { filter: brightness(0.97); }
   .kpi-card.gap1 { background: #fff8f0; border: 1.5px solid #fcd9b0; }
   .kpi-card.gap2 { background: #fff6f6; border: 1.5px solid #fbc4c4; }
-
   .kpi-left { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
   .kpi-label { font-size: 10px; font-weight: 700; letter-spacing: 0.4px; display: flex; align-items: center; gap: 6px; }
   .kpi-card.gap1 .kpi-label { color: #b85c00; }
   .kpi-card.gap2 .kpi-label { color: #a93226; }
   .kpi-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-
   /* Two-stat row */
   .kpi-stats { display: flex; align-items: flex-start; gap: 14px; }
   .kpi-stat  { display: flex; flex-direction: column; gap: 1px; }
@@ -50,82 +46,54 @@
   .kpi-stat-lbl { font-size: 10px; color: #bbb; font-weight: 500; margin-top: 2px; }
   .kpi-stat-div { width: 1px; height: 32px; background: #e8ddd0; align-self: flex-start; margin-top: 3px; flex-shrink: 0; }
   .kpi-card.gap2 .kpi-stat-div { background: #f0d0d0; }
-
   .kpi-cta { font-size: 11px; font-weight: 600; border-radius: 6px; padding: 7px 13px; border: 1px solid; white-space: nowrap; align-self: center; pointer-events: none; flex-shrink: 0; }
   .kpi-card.gap1 .kpi-cta { color: #c87200; background: #fff3e0; border-color: #f5c07a; }
   .kpi-card.gap2 .kpi-cta { color: #c0392b; background: #fdecea; border-color: #f5a9a0; }
-
   /* ── Open Gaps Section ── */
   .section-hdr { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
   .section-label { font-size: 10px; font-weight: 700; color: #aaa; letter-spacing: 0.6px; text-transform: uppercase; }
   .section-note  { font-size: 10px; color: #ccc; }
-
   .gaps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .gaps-col { border: 1px solid #edf0f4; border-radius: 9px; overflow: hidden; }
-
-  .gaps-col-hdr {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 14px 9px; border-bottom: 1px solid #edf0f4; background: #fafbfc;
-  }
+  .gaps-col-hdr { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px 9px; border-bottom: 1px solid #edf0f4; background: #fafbfc; }
   .gaps-col-hdr-title { font-size: 11px; font-weight: 700; color: #444; }
   .gaps-col-count { font-size: 10px; color: #aaa; }
   .gaps-col-note { padding: 5px 14px 4px; font-size: 10px; color: #c0c4cc; background: #fafbfc; border-bottom: 1px solid #edf0f4; font-style: italic; }
-
   /* ── Issue rows ── */
-  .issue-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 14px; border-bottom: 1px solid #f4f5f7;
-    cursor: pointer; transition: background 0.12s;
-  }
+  .issue-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid #f4f5f7; cursor: pointer; transition: background 0.12s; }
   .issue-row:hover { background: #fafbfc; }
-
   .issue-name { flex: 1; min-width: 0; }
   .issue-name-main { font-size: 12px; font-weight: 600; color: #222; }
-  .issue-name-sub  { font-size: 10px; color: #bbb; margin-top: 1px; }
-
-  .issue-items {
-    font-size: 11px; font-weight: 600; padding: 2px 7px;
-    border-radius: 4px; background: #f0f2f5; color: #666;
-    white-space: nowrap; flex-shrink: 0;
-  }
-
-  .issue-trend {
-    display: flex; flex-direction: column; align-items: flex-end;
-    white-space: nowrap; flex-shrink: 0; gap: 1px;
-  }
+  .issue-name-sub  { font-size: 10px; color: #bbb; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .issue-items { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; background: #f0f2f5; color: #666; white-space: nowrap; flex-shrink: 0; }
+  .issue-trend { display: flex; flex-direction: column; align-items: flex-end; white-space: nowrap; flex-shrink: 0; gap: 1px; }
   .issue-trend-label { font-size: 11px; font-weight: 700; }
-  .issue-trend-sub   { font-size: 9px; font-weight: 400; color: #bbb; }
+  .issue-trend-sub { font-size: 9px; font-weight: 400; color: #bbb; }
   .issue-trend.worse  .issue-trend-label { color: #c0392b; }
   .issue-trend.better .issue-trend-label { color: #27ae60; }
   .issue-trend.flat   .issue-trend-label { color: #bbb;    }
-
-  .issue-val {
-    font-size: 13px; font-weight: 800; color: #1a1a2e;
-    text-align: right; flex-shrink: 0; min-width: 52px;
-  }
+  .issue-val { font-size: 13px; font-weight: 800; color: #1a1a2e; text-align: right; flex-shrink: 0; min-width: 52px; }
   .issue-val.hi { color: #c0392b; }
-
-  /* ── Expand/collapse button ── */
-  .gaps-expand {
-    padding: 8px 14px; font-size: 11px; font-weight: 600;
-    color: #888; cursor: pointer; text-align: center;
-    background: #fafbfc; transition: background 0.12s, color 0.12s;
-    user-select: none;
-  }
+  /* ── Expand/collapse ── */
+  .gaps-expand { padding: 8px 14px; font-size: 11px; font-weight: 600; color: #888; cursor: pointer; text-align: center; background: #fafbfc; transition: background 0.12s, color 0.12s; user-select: none; }
   .gaps-expand:hover { background: #f0f2f5; color: #444; }
-
   .gaps-empty { padding: 22px 14px; text-align: center; font-size: 12px; color: #bbb; }
-
   /* ── Flyout ── */
   .flyout-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.32); z-index: 900; }
   .flyout-overlay.open { display: block; }
   .flyout-panel { position: fixed; right: 0; top: 0; bottom: 0; width: 440px; background: #fff; z-index: 901; box-shadow: -6px 0 36px rgba(0,0,0,0.14); display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); overflow: hidden; }
   .flyout-panel.open { transform: translateX(0); }
-  .flyout-hdr { padding: 18px 20px 14px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: flex-start; flex-shrink: 0; gap: 12px; }
-  .flyout-hdr-left { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+  .flyout-hdr { padding: 16px 20px 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: flex-start; flex-shrink: 0; gap: 10px; }
+  .flyout-hdr-left { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
   .flyout-title { font-size: 15px; font-weight: 700; color: #111; }
   .flyout-summary { font-size: 12px; color: #888; margin-top: 2px; }
-  .flyout-close { background: none; border: none; cursor: pointer; font-size: 17px; color: #999; padding: 2px 6px; border-radius: 4px; line-height: 1; flex-shrink: 0; }
+  .flyout-hdr-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  /* Language toggle */
+  .lang-toggle { display: flex; border: 1px solid #e0e4ea; border-radius: 6px; overflow: hidden; }
+  .lang-btn { padding: 4px 10px; font-size: 11px; font-weight: 600; cursor: pointer; background: #fff; color: #999; border: none; transition: background 0.12s, color 0.12s; line-height: 1.4; }
+  .lang-btn:first-child { border-right: 1px solid #e0e4ea; }
+  .lang-btn.active { background: #1a1a2e; color: #fff; }
+  .flyout-close { background: none; border: none; cursor: pointer; font-size: 17px; color: #999; padding: 2px 6px; border-radius: 4px; line-height: 1; }
   .flyout-close:hover { background: #f0f2f5; color: #333; }
   .flyout-subhdr { padding: 10px 20px 8px; font-size: 10px; font-weight: 700; color: #aaa; letter-spacing: 0.6px; text-transform: uppercase; border-bottom: 1px solid #f4f5f7; flex-shrink: 0; }
   .flyout-body { flex: 1; overflow-y: auto; }
@@ -133,13 +101,12 @@
   .flyout-row:last-child { border-bottom: none; }
   .flyout-row-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
   .flyout-row-name { font-size: 14px; font-weight: 700; color: #111; }
-  .flyout-row-meta { text-align: right; }
   .flyout-row-stats { display: flex; align-items: center; gap: 5px; justify-content: flex-end; }
   .flyout-stat-count { font-size: 13px; font-weight: 700; color: #c0392b; }
   .flyout-stat-sep   { font-size: 12px; color: #ccc; }
   .flyout-stat-val   { font-size: 13px; font-weight: 700; color: #1a1a2e; }
   .flyout-msg { background: #f8f9fa; border-left: 3px solid #e0e4ea; border-radius: 0 6px 6px 0; padding: 9px 11px; font-size: 11px; color: #555; line-height: 1.6; margin-bottom: 11px; max-height: 64px; overflow: hidden; cursor: pointer; transition: max-height 0.2s; }
-  .flyout-msg.expanded { max-height: 300px; }
+  .flyout-msg.expanded { max-height: 400px; }
   .flyout-msg-toggle { font-size: 10px; color: #aaa; text-align: right; margin-top: 2px; cursor: pointer; user-select: none; }
   .flyout-actions { display: flex; gap: 8px; flex-wrap: wrap; }
   .flyout-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid; transition: background 0.12s; text-decoration: none; white-space: nowrap; }
@@ -149,15 +116,31 @@
   .flyout-btn.whatsapp:hover { background: #e8f5ed; }
   .flyout-btn.link     { color: #555; background: #fff; border-color: #d0d5dd; }
   .flyout-btn.link:hover { background: #f0f2f5; }
-
   /* Toast */
   .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: #fff; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 500; z-index: 1100; opacity: 0; transition: opacity 0.18s; pointer-events: none; }
   .toast.show { opacity: 1; }
+  /* ── Mobile responsive ── */
+  @media (max-width: 640px) {
+    body { padding: 10px; }
+    .widget { padding: 16px 14px 20px; border-radius: 10px; }
+    .kpi-row { grid-template-columns: 1fr; gap: 10px; }
+    .kpi-card { padding: 12px 14px; }
+    .kpi-stat-val { font-size: 20px; }
+    .kpi-cta { padding: 6px 10px; font-size: 10px; }
+    .gaps-grid { grid-template-columns: 1fr; }
+    .section-note { display: none; }
+    .tag { display: none; }
+    .flyout-panel { width: 100%; border-radius: 0; }
+    .info-tip { width: 260px; }
+  }
+  @media (max-width: 400px) {
+    .issue-items { display: none; }
+    .kpi-cta { display: none; }
+  }
 </style>
 </head>
 <body>
 <div class="widget">
-
   <!-- ── Header ── -->
   <div class="header">
     <div class="header-left">
@@ -170,8 +153,7 @@
           <strong>Gap 1 — Picked up from customer → Delivered to warehouse</strong><br>
           Returns the courier has picked up from the customer but has not yet delivered to the warehouse. Action: contact the courier.<br><br>
           <strong>Gap 2 — Delivered to warehouse → Received in WMS</strong><br>
-          Returns the courier has physically delivered to the warehouse but the WMS has not yet scanned or acknowledged receipt. Action: contact the facility.<br><br>
-          Click <em>Take Action</em> on either card, or click any row, to reach out directly.
+          Returns the courier has physically delivered to the warehouse but the WMS has not yet scanned or acknowledged receipt. Action: contact the facility.
         </div>
       </div>
     </div>
@@ -179,10 +161,8 @@
       <div class="tag">📍 Facility: All</div>
     </div>
   </div>
-
   <!-- ── KPI Cards ── -->
   <div class="kpi-row">
-
     <div class="kpi-card gap1" onclick="openFlyout('gap1')">
       <div class="kpi-left">
         <div class="kpi-label">
@@ -203,7 +183,6 @@
       </div>
       <div class="kpi-cta">Take Action →</div>
     </div>
-
     <div class="kpi-card gap2" onclick="openFlyout('gap2')">
       <div class="kpi-left">
         <div class="kpi-label">
@@ -224,17 +203,13 @@
       </div>
       <div class="kpi-cta">Take Action →</div>
     </div>
-
   </div>
-
   <!-- ── Open Gaps ── -->
   <div class="section-hdr">
     <span class="section-label">Open gaps</span>
     <span class="section-note">Sorted by ₹ impact · Click row to act</span>
   </div>
-
   <div class="gaps-grid">
-
     <div class="gaps-col">
       <div class="gaps-col-hdr">
         <span class="gaps-col-hdr-title">🚚 Picked up · Not yet at warehouse</span>
@@ -243,7 +218,6 @@
       <div class="gaps-col-note">* Excludes last 72h — normal transit time</div>
       <div id="gaps-body-gap1"></div>
     </div>
-
     <div class="gaps-col">
       <div class="gaps-col-hdr">
         <span class="gaps-col-hdr-title">🏭 Delivered to warehouse · Not yet in WMS</span>
@@ -251,11 +225,8 @@
       </div>
       <div id="gaps-body-gap2"></div>
     </div>
-
   </div>
-
 </div>
-
 <!-- ── Flyout ── -->
 <div class="flyout-overlay" id="flyout-overlay" onclick="closeFlyout()"></div>
 <div class="flyout-panel" id="flyout-panel">
@@ -264,20 +235,19 @@
       <div class="flyout-title"   id="flyout-title"></div>
       <div class="flyout-summary" id="flyout-summary"></div>
     </div>
-    <button class="flyout-close" onclick="closeFlyout()">✕</button>
+    <div class="flyout-hdr-right">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="lang-btn-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn"        id="lang-btn-hi" onclick="setLang('hi')">हिंदी</button>
+      </div>
+      <button class="flyout-close" onclick="closeFlyout()">✕</button>
+    </div>
   </div>
   <div class="flyout-subhdr" id="flyout-subhdr"></div>
   <div class="flyout-body"   id="flyout-body"></div>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <script>
-// ── Data ──────────────────────────────────────────────────────────────────────
-// Gap 1: courier picked up from customer → not yet delivered to warehouse.
-//   Grouped by courier. Excludes last 24h (normal transit time).
-// Gap 2: courier delivered to warehouse → not yet acknowledged in WMS.
-//   Grouped by facility.
 const DATA = {
   gap1: {
     flyTitle:   'Returns Not Yet Delivered to Warehouse',
@@ -302,19 +272,51 @@ const DATA = {
     ]
   }
 };
+const SHOW_DEFAULT = 3;
+let currentLang  = 'en';
+let flyoutState  = { gap: null, rows: null };
 
-const SHOW_DEFAULT = 3;   // rows visible before expand
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('lang-btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('lang-btn-hi').classList.toggle('active', lang === 'hi');
+  if (flyoutState.gap) {
+    document.getElementById('flyout-body').innerHTML =
+      buildFlyoutRows(flyoutState.gap, flyoutState.rows);
+  }
+}
 
-// ── Render table ──────────────────────────────────────────────────────────────
+function getGapMessageEn(gap, name, items, value) {
+  const today = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  if (gap === 'gap1') {
+    return `Hi ${name} Team,\n\nWe have identified ${items} return shipments (${value}) that were picked up from customers and are currently with your courier, but have not yet been delivered to our warehouse as of ${today}.\n\nPlease note: this data excludes returns created in the last 3 days, as those are within normal transit time.\n\nCould you please investigate why these shipments are still in transit and share an expected delivery timeline? This is directly impacting our warehouse reconciliation.\n\nKindly respond at the earliest.\n\nRegards,\nOps & Finance Team`;
+  } else {
+    return `Hi ${name} Team,\n\nWe have identified ${items} return shipments (${value}) that have been delivered to your warehouse by the courier but have not yet been acknowledged as received in the WMS as of ${today}.\n\nCould you please investigate and confirm WMS receipt? This gap is impacting our financial reconciliation and needs immediate attention.\n\nKindly respond at the earliest.\n\nRegards,\nOps & Finance Team`;
+  }
+}
+
+function getGapMessageHi(gap, name, items, value) {
+  const today = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  if (gap === 'gap1') {
+    return `नमस्ते ${name} टीम,\n\nहमने ${items} रिटर्न शिपमेंट (${value}) की पहचान की है जो ग्राहकों से पिक अप किए गए हैं और वर्तमान में आपके कूरियर के पास हैं, लेकिन ${today} तक हमारे वेयरहाउस में डिलीवर नहीं हुए हैं।\n\nकृपया ध्यान दें: यह डेटा पिछले 3 दिनों में बनाए गए रिटर्न को शामिल नहीं करता, क्योंकि वे सामान्य ट्रांजिट समय के भीतर माने जाते हैं।\n\nकृपया जांच करें कि ये शिपमेंट अभी भी ट्रांजिट में क्यों हैं और एक अपेक्षित डिलीवरी टाइमलाइन साझा करें। यह हमारे वेयरहाउस रिकॉन्सिलिएशन को सीधे प्रभावित कर रहा है।\n\nकृपया जल्द से जल्द उत्तर दें।\n\nसादर,\nऑप्स और फाइनेंस टीम`;
+  } else {
+    return `नमस्ते ${name} टीम,\n\nहमने ${items} रिटर्न शिपमेंट (${value}) की पहचान की है जो कूरियर द्वारा आपके वेयरहाउस में डिलीवर किए गए हैं, लेकिन ${today} तक WMS में प्राप्त के रूप में स्वीकृत नहीं हुए हैं।\n\nकृपया जांच करें और WMS रसीद की पुष्टि करें। यह अंतर हमारे वित्तीय रिकॉन्सिलिएशन को प्रभावित कर रहा है और इस पर तत्काल ध्यान देने की आवश्यकता है।\n\nकृपया जल्द से जल्द उत्तर दें।\n\nसादर,\nऑप्स और फाइनेंस टीम`;
+  }
+}
+
+function getGapMessage(gap, name, items, value) {
+  return currentLang === 'hi'
+    ? getGapMessageHi(gap, name, items, value)
+    : getGapMessageEn(gap, name, items, value);
+}
+
 function renderGaps() {
   ['gap1', 'gap2'].forEach(gap => {
     const d     = DATA[gap];
     const label = gap === 'gap1' ? 'courier' : 'facility';
     const total = d.rows.length;
-
     document.getElementById('gaps-count-' + gap).textContent =
       total + ' ' + label + (total !== 1 ? 's' : '');
-
     const rowsHTML = d.rows.map((r, i) => {
       const hidden   = i >= SHOW_DEFAULT ? ' class="issue-row extra-row" style="display:none"' : ' class="issue-row"';
       const pctLabel = gap === 'gap1' ? 'undelivered' : 'unscanned';
@@ -335,7 +337,6 @@ function renderGaps() {
           <span class="issue-trend-sub">vs last wk</span>
         </div>`;
       const valCls = r.rupees >= 100000 ? 'hi' : '';
-
       return `
         <div${hidden} data-gap="${gap}" onclick="openFlyoutRow('${gap}', ${i})">
           <div class="issue-name">
@@ -347,18 +348,15 @@ function renderGaps() {
           <span class="issue-val ${valCls}">${r.val}</span>
         </div>`;
     }).join('');
-
     const extra = total - SHOW_DEFAULT;
     const expandHTML = extra > 0
       ? `<div class="gaps-expand" id="expand-${gap}" data-expanded="false"
              onclick="toggleExpand('${gap}')">↓ Show ${extra} more</div>`
       : '';
-
     document.getElementById('gaps-body-' + gap).innerHTML = rowsHTML + expandHTML;
   });
 }
 
-// ── Expand/collapse ───────────────────────────────────────────────────────────
 function toggleExpand(gap) {
   const btn      = document.getElementById('expand-' + gap);
   const expanded = btn.dataset.expanded === 'true';
@@ -369,17 +367,6 @@ function toggleExpand(gap) {
   btn.textContent = expanded ? `↓ Show ${n} more` : '↑ Show less';
 }
 
-// ── Gap messages ──────────────────────────────────────────────────────────────
-function getGapMessage(gap, name, items, value) {
-  const today = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
-  if (gap === 'gap1') {
-    return `Hi ${name} Team,\n\nWe have identified ${items} return shipments (${value}) that were picked up from customers and are currently with your courier, but have not yet been delivered to our warehouse as of ${today}.\n\nPlease note: this data excludes returns created in the last 3 days, as those are within normal transit time.\n\nCould you please investigate why these shipments are still in transit and share an expected delivery timeline? This is directly impacting our warehouse reconciliation.\n\nKindly respond at the earliest.\n\nRegards,\nOps & Finance Team`;
-  } else {
-    return `Hi ${name} Team,\n\nWe have identified ${items} return shipments (${value}) that have been delivered to your warehouse by the courier but have not yet been acknowledged as received in the WMS as of ${today}.\n\nCould you please investigate and confirm WMS receipt? This gap is impacting our financial reconciliation and needs immediate attention.\n\nKindly respond at the earliest.\n\nRegards,\nOps & Finance Team`;
-  }
-}
-
-// ── Build flyout row HTML ─────────────────────────────────────────────────────
 function buildFlyoutRows(gap, rows) {
   return rows.map(row => {
     const globalIdx = DATA[gap].rows.indexOf(row);
@@ -394,12 +381,10 @@ function buildFlyoutRows(gap, rows) {
       <div class="flyout-row">
         <div class="flyout-row-top">
           <div class="flyout-row-name">${row.name}</div>
-          <div class="flyout-row-meta">
-            <div class="flyout-row-stats">
-              <span class="flyout-stat-count">${row.items} returns</span>
-              <span class="flyout-stat-sep">·</span>
-              <span class="flyout-stat-val">${row.val} pending</span>
-            </div>
+          <div class="flyout-row-stats">
+            <span class="flyout-stat-count">${row.items} returns</span>
+            <span class="flyout-stat-sep">·</span>
+            <span class="flyout-stat-val">${row.val} pending</span>
           </div>
         </div>
         <div class="flyout-msg" id="fmsg-${gap}-${globalIdx}">${preview}</div>
@@ -418,9 +403,9 @@ function buildFlyoutRows(gap, rows) {
   }).join('');
 }
 
-// ── Flyout: all rows (KPI card click) ────────────────────────────────────────
 function openFlyout(gap) {
   const d = DATA[gap];
+  flyoutState = { gap, rows: d.rows };
   document.getElementById('flyout-title').textContent   = d.flyTitle;
   document.getElementById('flyout-summary').textContent = d.flySummary;
   document.getElementById('flyout-subhdr').textContent  = d.flySubhdr;
@@ -429,10 +414,10 @@ function openFlyout(gap) {
   document.getElementById('flyout-panel').classList.add('open');
 }
 
-// ── Flyout: single row (table row click) ─────────────────────────────────────
 function openFlyoutRow(gap, i) {
   const d   = DATA[gap];
   const row = d.rows[i];
+  flyoutState = { gap, rows: [row] };
   document.getElementById('flyout-title').textContent   = d.flyTitle;
   document.getElementById('flyout-summary').textContent = `${row.name} · ${row.items} items · ${row.val}`;
   document.getElementById('flyout-subhdr').textContent  = gap === 'gap1' ? 'Courier Partner' : 'Facility';
@@ -444,6 +429,7 @@ function openFlyoutRow(gap, i) {
 function closeFlyout() {
   document.getElementById('flyout-overlay').classList.remove('open');
   document.getElementById('flyout-panel').classList.remove('open');
+  flyoutState = { gap: null, rows: null };
 }
 
 function toggleMsg(id, el) {
@@ -474,7 +460,6 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
 renderGaps();
 </script>
 </body>
