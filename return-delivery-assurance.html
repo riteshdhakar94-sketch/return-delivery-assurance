@@ -2,465 +2,791 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Return Delivery Assurance — v10</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>UniCapture — IP Camera Configuration</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #f4f5f7; padding: 24px; color: #1a1a2e;
-  }
-  .widget {
-    background: #fff; border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.09);
-    padding: 20px 24px 24px; max-width: 820px; position: relative;
-  }
-  /* ── Header ── */
-  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
-  .header-left { display: flex; align-items: center; gap: 8px; }
-  .title { font-size: 16px; font-weight: 700; color: #111; }
-  .info-wrap { position: relative; display: inline-flex; }
-  .info-icon { width: 17px; height: 17px; border-radius: 50%; background: #e0e4ea; color: #555; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: help; }
-  .info-icon:hover + .info-tip { display: block; }
-  .info-tip { display: none; position: absolute; top: 24px; left: 0; background: #fff; border: 1px solid #e0e4ea; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); padding: 13px 15px; width: 320px; z-index: 600; font-size: 11px; color: #444; line-height: 1.65; }
-  .info-tip strong { color: #111; }
-  .info-tip::before { content:''; position:absolute; top:-6px; left:12px; border-left:6px solid transparent; border-right:6px solid transparent; border-bottom:6px solid #e0e4ea; }
-  .tag { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #555; background: #f0f2f5; border-radius: 6px; padding: 5px 10px; }
-  /* ── KPI Row ── */
-  .kpi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-  .kpi-card { border-radius: 10px; padding: 14px 18px; display: flex; align-items: flex-start; justify-content: space-between; cursor: pointer; transition: filter 0.15s; gap: 12px; }
-  .kpi-card:hover { filter: brightness(0.97); }
-  .kpi-card.gap1 { background: #fff8f0; border: 1.5px solid #fcd9b0; }
-  .kpi-card.gap2 { background: #fff6f6; border: 1.5px solid #fbc4c4; }
-  .kpi-left { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
-  .kpi-label { font-size: 10px; font-weight: 700; letter-spacing: 0.4px; display: flex; align-items: center; gap: 6px; }
-  .kpi-card.gap1 .kpi-label { color: #b85c00; }
-  .kpi-card.gap2 .kpi-label { color: #a93226; }
-  .kpi-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  /* Two-stat row */
-  .kpi-stats { display: flex; align-items: flex-start; gap: 14px; }
-  .kpi-stat  { display: flex; flex-direction: column; gap: 1px; }
-  .kpi-stat-val { font-size: 22px; font-weight: 800; line-height: 1; }
-  .kpi-card.gap1 .kpi-stat-val { color: #c87200; }
-  .kpi-card.gap2 .kpi-stat-val { color: #c0392b; }
-  .kpi-stat-lbl { font-size: 10px; color: #bbb; font-weight: 500; margin-top: 2px; }
-  .kpi-stat-div { width: 1px; height: 32px; background: #e8ddd0; align-self: flex-start; margin-top: 3px; flex-shrink: 0; }
-  .kpi-card.gap2 .kpi-stat-div { background: #f0d0d0; }
-  .kpi-cta { font-size: 11px; font-weight: 600; border-radius: 6px; padding: 7px 13px; border: 1px solid; white-space: nowrap; align-self: center; pointer-events: none; flex-shrink: 0; }
-  .kpi-card.gap1 .kpi-cta { color: #c87200; background: #fff3e0; border-color: #f5c07a; }
-  .kpi-card.gap2 .kpi-cta { color: #c0392b; background: #fdecea; border-color: #f5a9a0; }
-  /* ── Open Gaps Section ── */
-  .section-hdr { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
-  .section-label { font-size: 10px; font-weight: 700; color: #aaa; letter-spacing: 0.6px; text-transform: uppercase; }
-  .section-note  { font-size: 10px; color: #ccc; }
-  .gaps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .gaps-col { border: 1px solid #edf0f4; border-radius: 9px; overflow: hidden; }
-  .gaps-col-hdr { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px 9px; border-bottom: 1px solid #edf0f4; background: #fafbfc; }
-  .gaps-col-hdr-title { font-size: 11px; font-weight: 700; color: #444; }
-  .gaps-col-count { font-size: 10px; color: #aaa; }
-  .gaps-col-note { padding: 5px 14px 4px; font-size: 10px; color: #c0c4cc; background: #fafbfc; border-bottom: 1px solid #edf0f4; font-style: italic; }
-  /* ── Issue rows ── */
-  .issue-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid #f4f5f7; cursor: pointer; transition: background 0.12s; }
-  .issue-row:hover { background: #fafbfc; }
-  .issue-name { flex: 1; min-width: 0; }
-  .issue-name-main { font-size: 12px; font-weight: 600; color: #222; }
-  .issue-name-sub  { font-size: 10px; color: #bbb; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .issue-items { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; background: #f0f2f5; color: #666; white-space: nowrap; flex-shrink: 0; }
-  .issue-trend { display: flex; flex-direction: column; align-items: flex-end; white-space: nowrap; flex-shrink: 0; gap: 1px; }
-  .issue-trend-label { font-size: 11px; font-weight: 700; }
-  .issue-trend-sub { font-size: 9px; font-weight: 400; color: #bbb; }
-  .issue-trend.worse  .issue-trend-label { color: #c0392b; }
-  .issue-trend.better .issue-trend-label { color: #27ae60; }
-  .issue-trend.flat   .issue-trend-label { color: #bbb;    }
-  .issue-val { font-size: 13px; font-weight: 800; color: #1a1a2e; text-align: right; flex-shrink: 0; min-width: 52px; }
-  .issue-val.hi { color: #c0392b; }
-  /* ── Expand/collapse ── */
-  .gaps-expand { padding: 8px 14px; font-size: 11px; font-weight: 600; color: #888; cursor: pointer; text-align: center; background: #fafbfc; transition: background 0.12s, color 0.12s; user-select: none; }
-  .gaps-expand:hover { background: #f0f2f5; color: #444; }
-  .gaps-empty { padding: 22px 14px; text-align: center; font-size: 12px; color: #bbb; }
-  /* ── Flyout ── */
-  .flyout-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.32); z-index: 900; }
-  .flyout-overlay.open { display: block; }
-  .flyout-panel { position: fixed; right: 0; top: 0; bottom: 0; width: 440px; background: #fff; z-index: 901; box-shadow: -6px 0 36px rgba(0,0,0,0.14); display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); overflow: hidden; }
-  .flyout-panel.open { transform: translateX(0); }
-  .flyout-hdr { padding: 16px 20px 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: flex-start; flex-shrink: 0; gap: 10px; }
-  .flyout-hdr-left { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
-  .flyout-title { font-size: 15px; font-weight: 700; color: #111; }
-  .flyout-summary { font-size: 12px; color: #888; margin-top: 2px; }
-  .flyout-hdr-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-  /* Language toggle */
-  .lang-toggle { display: flex; border: 1px solid #e0e4ea; border-radius: 6px; overflow: hidden; }
-  .lang-btn { padding: 4px 10px; font-size: 11px; font-weight: 600; cursor: pointer; background: #fff; color: #999; border: none; transition: background 0.12s, color 0.12s; line-height: 1.4; }
-  .lang-btn:first-child { border-right: 1px solid #e0e4ea; }
-  .lang-btn.active { background: #1a1a2e; color: #fff; }
-  .flyout-close { background: none; border: none; cursor: pointer; font-size: 17px; color: #999; padding: 2px 6px; border-radius: 4px; line-height: 1; }
-  .flyout-close:hover { background: #f0f2f5; color: #333; }
-  .flyout-subhdr { padding: 10px 20px 8px; font-size: 10px; font-weight: 700; color: #aaa; letter-spacing: 0.6px; text-transform: uppercase; border-bottom: 1px solid #f4f5f7; flex-shrink: 0; }
-  .flyout-body { flex: 1; overflow-y: auto; }
-  .flyout-row { padding: 16px 20px; border-bottom: 1px solid #f4f5f7; }
-  .flyout-row:last-child { border-bottom: none; }
-  .flyout-row-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-  .flyout-row-name { font-size: 14px; font-weight: 700; color: #111; }
-  .flyout-row-stats { display: flex; align-items: center; gap: 5px; justify-content: flex-end; }
-  .flyout-stat-count { font-size: 13px; font-weight: 700; color: #c0392b; }
-  .flyout-stat-sep   { font-size: 12px; color: #ccc; }
-  .flyout-stat-val   { font-size: 13px; font-weight: 700; color: #1a1a2e; }
-  .flyout-msg { background: #f8f9fa; border-left: 3px solid #e0e4ea; border-radius: 0 6px 6px 0; padding: 9px 11px; font-size: 11px; color: #555; line-height: 1.6; margin-bottom: 11px; max-height: 64px; overflow: hidden; cursor: pointer; transition: max-height 0.2s; }
-  .flyout-msg.expanded { max-height: 400px; }
-  .flyout-msg-toggle { font-size: 10px; color: #aaa; text-align: right; margin-top: 2px; cursor: pointer; user-select: none; }
-  .flyout-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-  .flyout-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid; transition: background 0.12s; text-decoration: none; white-space: nowrap; }
-  .flyout-btn.mail     { color: #1a73e8; background: #fff; border-color: #aac9f7; }
-  .flyout-btn.mail:hover { background: #e8f0fe; }
-  .flyout-btn.whatsapp { color: #1a9e4a; background: #fff; border-color: #8ed8a9; }
-  .flyout-btn.whatsapp:hover { background: #e8f5ed; }
-  .flyout-btn.link     { color: #555; background: #fff; border-color: #d0d5dd; }
-  .flyout-btn.link:hover { background: #f0f2f5; }
-  /* Toast */
-  .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: #fff; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 500; z-index: 1100; opacity: 0; transition: opacity 0.18s; pointer-events: none; }
-  .toast.show { opacity: 1; }
-  /* ── Mobile responsive ── */
-  @media (max-width: 640px) {
-    body { padding: 10px; }
-    .widget { padding: 16px 14px 20px; border-radius: 10px; }
-    .kpi-row { grid-template-columns: 1fr; gap: 10px; }
-    .kpi-card { padding: 12px 14px; }
-    .kpi-stat-val { font-size: 20px; }
-    .kpi-cta { padding: 6px 10px; font-size: 10px; }
-    .gaps-grid { grid-template-columns: 1fr; }
-    .section-note { display: none; }
-    .tag { display: none; }
-    .flyout-panel { width: 100%; border-radius: 0; }
-    .info-tip { width: 260px; }
-  }
-  @media (max-width: 400px) {
-    .issue-items { display: none; }
-    .kpi-cta { display: none; }
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#e8edf2;min-height:100vh;overflow-x:hidden}
+
+:root{
+  --navy:#0F2D5A; --blue:#1A56BB; --teal:#0D9488; --teal-lt:#CCFBF1;
+  --white:#FFFFFF; --off:#F8FAFC; --slate:#475569; --muted:#94A3B8;
+  --border:#E2E8F0; --green:#16A34A; --red:#DC2626; --amber:#D97706;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.06);
+  --shadow-lg:0 8px 16px rgba(0,0,0,.12),0 24px 48px rgba(0,0,0,.16);
+  --radius:8px;
+}
+
+/* ── App shell ── */
+.screen{display:none;flex-direction:column;min-height:100vh}
+.screen.active{display:flex}
+.topbar{height:52px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
+.topbar-logo{display:flex;align-items:center;gap:2px;font-size:17px;font-weight:800}
+.uni{color:var(--teal)}.ware{color:var(--navy)}
+.topbar-badge{font-size:10px;font-weight:700;background:#ECFDF5;color:var(--teal);border:1px solid #A7F3D0;border-radius:4px;padding:2px 7px}
+.topbar-facility{padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--slate);background:var(--off);cursor:pointer}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.shell{display:flex;flex:1;position:relative;overflow:hidden}
+.sidebar{width:52px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:6px;flex-shrink:0}
+.sidebar-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:var(--muted);transition:background .15s}
+.sidebar-icon:hover{background:var(--off)}
+.sidebar-icon.active{background:#EBF5FF;color:var(--blue)}
+.content-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.breadcrumb{padding:12px 24px 0;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:var(--teal);text-decoration:none;font-weight:500}
+.page-header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px 0}
+.page-title{font-size:18px;font-weight:700;color:var(--navy)}
+.page-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.content-body{padding:16px 24px 32px;flex:1;overflow-y:auto}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:var(--radius);font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .15s}
+.btn-primary{background:var(--teal);color:#fff}
+.btn-primary:hover{background:#0b7a72}
+.btn-primary:disabled,.btn-primary[disabled]{opacity:.4;cursor:default;pointer-events:none}
+.btn-secondary{background:#fff;color:var(--slate);border:1.5px solid var(--border)}
+.btn-secondary:hover{background:var(--off)}
+.btn-icon{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;font-size:14px;transition:all .15s;background:transparent}
+.btn-icon:hover{background:var(--off)}
+.btn-icon.edit:hover{background:#EBF5FF;color:var(--blue)}
+.btn-icon.del:hover{background:#FEF2F2;color:var(--red)}
+
+
+/* ── Camera flat list ── */
+.setup-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.setup-badge.direct{background:#EBF5FF;color:var(--blue)}
+.setup-badge.nvr{background:#FDF4FF;color:#7C3AED}
+.status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0}
+.status-dot.online{background:var(--green)}
+.status-dot.offline{background:var(--muted)}
+
+/* ── Camera table ── */
+.cam-table{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.cam-table table{width:100%;border-collapse:collapse}
+.cam-table thead th{padding:9px 14px;background:var(--off);border-bottom:2px solid var(--border);font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;text-align:left;white-space:nowrap}
+.cam-table thead th:last-child{text-align:right}
+
+/* NVR group header row */
+.cam-table tr.nvr-group-row td{padding:6px 14px;background:#F5F3FF;border-top:1px solid #EDE9FE;border-bottom:1px solid #EDE9FE;cursor:pointer;user-select:none}
+.cam-table tr.nvr-group-row:first-child td{border-top:none}
+.cam-table tr.nvr-group-row:hover td{background:#EDE9FE}
+.nvr-group-cell{display:flex;align-items:center;justify-content:space-between}
+.nvr-group-label{display:flex;align-items:center;gap:8px}
+.nvr-chevron{font-size:9px;color:#7C3AED;transition:transform .2s;display:inline-block}
+.nvr-chevron.collapsed{transform:rotate(-90deg)}
+.nvr-tag{font-size:10px;font-weight:700;color:#7C3AED;background:#EDE9FE;border:1px solid #DDD6FE;border-radius:4px;padding:2px 7px;letter-spacing:.3px;text-transform:uppercase}
+.nvr-ip{font-size:11px;color:#6D28D9;font-family:'Courier New',monospace}
+.nvr-cam-count{font-size:11px;color:var(--muted)}
+.nvr-names-inline{display:none;align-items:center;gap:5px;flex-wrap:nowrap;margin-left:4px;overflow:hidden}
+.nvr-names-inline.visible{display:flex}
+.nvr-cam-chip{font-size:11px;color:#5B21B6;background:#EDE9FE;border:1px solid #DDD6FE;border-radius:4px;padding:1px 8px;font-weight:500;white-space:nowrap}
+.nvr-more{font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap;letter-spacing:.5px}
+
+/* Camera rows */
+.cam-table tr.cam-row td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:13px;color:var(--slate)}
+.cam-table tr.cam-row:last-child td{border-bottom:none}
+.cam-table tr.cam-row:hover td{background:#FAFBFC}
+.cam-table tr.cam-row.grouped td{border-left:3px solid #DDD6FE}
+.cam-table tr.cam-row.grouped td:first-child{padding-left:22px}
+.cam-table tr.cam-row.grouped:hover td{background:#FDFBFF}
+
+.cam-name{font-size:13px;font-weight:700;color:var(--navy);line-height:1.3}
+.cam-meta{font-size:11px;color:var(--muted);margin-top:1px}
+.cam-status-cell{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.cam-actions-cell{display:flex;gap:4px;justify-content:flex-end}
+
+/* ── Flyout ── */
+.flyout-backdrop{position:fixed;inset:0;background:rgba(15,45,90,.35);z-index:50;opacity:0;pointer-events:none;transition:opacity .25s}
+.flyout-backdrop.open{opacity:1;pointer-events:all}
+.flyout{position:fixed;top:0;right:0;bottom:0;width:500px;background:var(--white);box-shadow:var(--shadow-lg);z-index:51;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.flyout.open{transform:translateX(0)}
+.flyout-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);flex-shrink:0;gap:12px}
+.flyout-header h3{font-size:16px;font-weight:700;color:var(--navy);flex:1}
+.flyout-header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.setup-guide-link{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--teal);text-decoration:none;padding:4px 10px;border:1px solid #A7F3D0;border-radius:6px;background:#F0FDFA;transition:all .15s;white-space:nowrap}
+.setup-guide-link:hover{background:#CCFBF1;border-color:var(--teal)}
+.flyout-close{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;border:none;background:var(--off);color:var(--muted);font-size:16px;cursor:pointer;line-height:1}
+.flyout-close:hover{background:var(--border);color:var(--slate)}
+.flyout-body{flex:1;overflow-y:auto;padding:20px 22px}
+.flyout-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid var(--border);flex-shrink:0;background:var(--white)}
+
+/* ── Form ── */
+.field{margin-bottom:16px}
+.field label{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.field label .opt{font-size:10px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0}
+.field input,.field select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;color:#334155;background:var(--white);transition:border-color .15s,box-shadow .15s;font-family:inherit}
+.field input:focus,.field select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,148,136,.10)}
+.field input.mono{font-family:'Courier New',monospace;font-size:12px;color:var(--slate)}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.field .hint{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-sep{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:20px 0 14px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+
+/* ── Type cards ── */
+.type-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.type-card{border:2px solid var(--border);border-radius:10px;padding:14px 12px;cursor:pointer;transition:all .15s}
+.type-card:hover{border-color:#93C5FD;background:#F0F7FF}
+.type-card.selected{border-color:var(--teal);background:#F0FDFA}
+.tc-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:8px;background:var(--off);transition:background .15s}
+.type-card.selected .tc-icon{background:var(--teal-lt)}
+.type-card h4{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.type-card p{font-size:11px;color:var(--muted);line-height:1.4}
+
+/* ── URL preview ── */
+.url-preview{background:var(--off);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:16px}
+.up-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin-bottom:4px;text-transform:uppercase}
+.up-val{font-size:11.5px;color:var(--slate);font-family:'Courier New',monospace;word-break:break-all;line-height:1.5}
+.up-val em{color:var(--teal);font-style:normal;font-weight:600}
+
+/* ── Info callout ── */
+.info-callout{background:#EBF5FF;border:1px solid #BFDBFE;border-radius:7px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#1e40af;line-height:1.5}
+.info-callout strong{font-weight:700}
+
+/* ── MediaMTX prereq banner ── */
+.prereq-banner{background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:12px 14px;margin-bottom:20px;display:flex;gap:12px;align-items:flex-start}
+.prereq-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.prereq-body{flex:1}
+.prereq-title{font-size:12px;font-weight:700;color:#92400E;margin-bottom:3px}
+.prereq-desc{font-size:11px;color:#78350F;line-height:1.5;margin-bottom:8px}
+.prereq-download{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:#F59E0B;color:#fff;border-radius:6px;font-size:11px;font-weight:700;text-decoration:none;transition:background .15s}
+.prereq-download:hover{background:#D97706}
+.prereq-installed{display:inline-flex;align-items:center;gap:4px;margin-left:8px;font-size:11px;color:#6B7280;cursor:pointer;padding:5px 0}
+.prereq-installed:hover{color:var(--slate)}
+
+/* ── Advanced toggle ── */
+.adv-toggle{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none;margin-bottom:12px;padding:4px 0}
+.adv-toggle:hover{color:var(--slate)}
+.adv-toggle svg{transition:transform .2s}
+.adv-box{background:var(--off);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:14px}
+
+/* ── Test + PIP ── */
+.test-section{border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-top:4px;transition:border-color .3s}
+.test-section.success{border-color:var(--teal)}
+.test-section.fail{border-color:var(--red)}
+.test-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;gap:12px}
+.test-info{flex:1}
+.test-title{font-size:13px;font-weight:700;color:var(--navy);transition:color .3s}
+.test-section.success .test-title{color:var(--teal)}
+.test-section.fail .test-title{color:var(--red)}
+.test-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.btn-test{flex-shrink:0;padding:8px 16px;background:var(--white);border:1.5px solid var(--blue);border-radius:var(--radius);font-size:12px;font-weight:700;color:var(--blue);cursor:pointer;white-space:nowrap;transition:all .15s}
+.btn-test:disabled{opacity:.5;cursor:default}
+
+/* Camera PIP widget */
+.cam-pip{display:none;border-top:1px solid #1a2a1a;background:#0d1117;position:relative}
+.cam-pip.visible{display:block}
+.cam-pip-inner{width:100%;aspect-ratio:16/9;position:relative;overflow:hidden}
+
+/* Simulated warehouse scene */
+.cam-bg{position:absolute;inset:0;background:linear-gradient(160deg,#0a1a0a 0%,#0d1117 50%,#0a0f1a 100%)}
+.cam-floor{position:absolute;bottom:0;left:0;right:0;height:38%;background:linear-gradient(to top,rgba(30,50,30,.4),transparent)}
+.cam-shelf{position:absolute;width:2px;background:rgba(60,100,60,.2);bottom:38%}
+.cam-shelf::before{content:'';position:absolute;top:0;left:-18px;right:-18px;height:2px;background:rgba(60,100,60,.2)}
+.cam-shelf::after{content:'';position:absolute;top:35%;left:-18px;right:-18px;height:2px;background:rgba(60,100,60,.15)}
+
+/* Grid overlay */
+.cam-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,200,80,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,80,.025) 1px,transparent 1px);background-size:44px 44px}
+/* Scanlines */
+.cam-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.07) 0px,rgba(0,0,0,.07) 1px,transparent 1px,transparent 3px)}
+/* Vignette */
+.cam-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%)}
+
+.cam-live{position:absolute;top:10px;left:10px;display:flex;align-items:center;gap:5px;background:rgba(220,38,38,.92);color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:4px;letter-spacing:.5px}
+.cam-live-dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.cam-ts{position:absolute;top:10px;right:10px;font-size:10px;color:rgba(255,255,255,.75);font-family:'Courier New',monospace;background:rgba(0,0,0,.5);padding:2px 7px;border-radius:3px}
+.cam-label{position:absolute;bottom:10px;left:10px;font-size:11px;color:rgba(255,255,255,.85);font-family:'Courier New',monospace;background:rgba(0,0,0,.55);padding:3px 8px;border-radius:3px}
+.cam-corner{position:absolute;width:14px;height:14px;border-color:rgba(0,220,80,.5);border-style:solid;border-width:0}
+.cam-corner.tl{top:8px;left:8px;border-top-width:2px;border-left-width:2px}
+.cam-corner.tr{top:8px;right:8px;border-top-width:2px;border-right-width:2px}
+.cam-corner.bl{bottom:8px;left:8px;border-bottom-width:2px;border-left-width:2px}
+.cam-corner.br{bottom:8px;right:8px;border-bottom-width:2px;border-right-width:2px}
+
+/* ── Delete flyout ── */
+.del-body{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 32px;text-align:center;flex:1}
+.del-icon-big{font-size:44px;margin-bottom:16px;opacity:.8}
+.del-body h3{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.del-body p{font-size:13px;color:var(--muted);line-height:1.6;max-width:300px}
+.del-badge{display:inline-flex;align-items:center;gap:6px;margin:14px auto 0;background:var(--off);border:1px solid var(--border);border-radius:6px;padding:7px 14px;font-size:12px;font-weight:600;color:var(--slate)}
+.btn-delete-confirm{background:var(--red);color:#fff;border:none;flex:1;justify-content:center}
+.btn-delete-confirm:hover{background:#b91c1c}
+
+/* ── Empty state ── */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center}
+.empty-icon{font-size:52px;margin-bottom:16px;opacity:.4}
+.empty-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.empty-sub{font-size:13px;color:var(--muted);max-width:340px;line-height:1.6;margin-bottom:24px}
 </style>
 </head>
 <body>
-<div class="widget">
-  <!-- ── Header ── -->
-  <div class="header">
-    <div class="header-left">
-      <span class="title">Returns Tracking</span>
-      <div class="info-wrap">
-        <div class="info-icon">i</div>
-        <div class="info-tip">
-          <strong>Returns Tracking</strong><br><br>
-          Monitors return shipments across two handoff stages. Expected counts are pulled from the Marketplace API — no manual imports needed.<br><br>
-          <strong>Gap 1 — Picked up from customer → Delivered to warehouse</strong><br>
-          Returns the courier has picked up from the customer but has not yet delivered to the warehouse. Action: contact the courier.<br><br>
-          <strong>Gap 2 — Delivered to warehouse → Received in WMS</strong><br>
-          Returns the courier has physically delivered to the warehouse but the WMS has not yet scanned or acknowledged receipt. Action: contact the facility.
-        </div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <div class="tag">📍 Facility: All</div>
-    </div>
+
+<!-- ════════════ Camera List ════════════ -->
+<div id="s-list" class="screen active">
+  <div class="topbar">
+    <div class="topbar-logo"><span class="uni">Uni</span><span class="ware">ware</span></div>
+    <div class="topbar-badge">UniCapture</div>
+    <div class="topbar-facility">CO-GURGAON ▾</div>
+    <div class="topbar-right"><div class="avatar">UT</div></div>
   </div>
-  <!-- ── KPI Cards ── -->
-  <div class="kpi-row">
-    <div class="kpi-card gap1" onclick="openFlyout('gap1')">
-      <div class="kpi-left">
-        <div class="kpi-label">
-          <span class="kpi-dot" style="background:#e67e22"></span>
-          PICKED UP · NOT YET AT WAREHOUSE · LAST 30 DAYS
-        </div>
-        <div class="kpi-stats">
-          <div class="kpi-stat">
-            <div class="kpi-stat-val">78</div>
-            <div class="kpi-stat-lbl">returns pending</div>
-          </div>
-          <div class="kpi-stat-div"></div>
-          <div class="kpi-stat">
-            <div class="kpi-stat-val">₹2.7L</div>
-            <div class="kpi-stat-lbl">value at risk</div>
-          </div>
-        </div>
-      </div>
-      <div class="kpi-cta">Take Action →</div>
+  <div class="shell">
+    <div class="sidebar">
+      <div class="sidebar-icon">🏠</div>
+      <div class="sidebar-icon">📋</div>
+      <div class="sidebar-icon active">🎥</div>
+      <div class="sidebar-icon">⚙️</div>
     </div>
-    <div class="kpi-card gap2" onclick="openFlyout('gap2')">
-      <div class="kpi-left">
-        <div class="kpi-label">
-          <span class="kpi-dot" style="background:#e74c3c"></span>
-          DELIVERED TO WH · NOT YET IN WMS · LAST 30 DAYS
+    <div class="content-wrap">
+      <div class="breadcrumb"><a>UniCapture</a><span>›</span><span>IP Camera Configuration</span></div>
+      <div class="page-header">
+        <div>
+          <div class="page-title">IP Camera Configuration</div>
+          <div class="page-sub">Manage cameras at this facility</div>
         </div>
-        <div class="kpi-stats">
-          <div class="kpi-stat">
-            <div class="kpi-stat-val">142</div>
-            <div class="kpi-stat-lbl">returns pending</div>
-          </div>
-          <div class="kpi-stat-div"></div>
-          <div class="kpi-stat">
-            <div class="kpi-stat-val">₹6.0L</div>
-            <div class="kpi-stat-lbl">value at risk</div>
-          </div>
+        <button class="btn btn-primary" onclick="openFlyout('add')">+ Add Camera</button>
+      </div>
+      <div class="content-body">
+        <div class="cam-table">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:40%">Camera Name</th>
+                <th style="width:18%">Connection</th>
+                <th style="width:18%">Status</th>
+                <th style="width:24%"></th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <!-- NVR group header -->
+              <tr class="nvr-group-row" onclick="toggleNvrGroup('nvr-group-1', this)">
+                <td colspan="4">
+                  <div class="nvr-group-cell">
+                    <div class="nvr-group-label">
+                      <span class="nvr-chevron" id="nvr-chevron-1">▼</span>
+                      <span class="nvr-tag">NVR</span>
+                      <span class="nvr-ip">192.168.1.101</span>
+                      <div class="nvr-names-inline" id="nvr-group-1-names">
+                        <span class="nvr-cam-chip">Packing Station 1</span>
+                        <span class="nvr-cam-chip">Packing Station 2</span>
+                        <span class="nvr-cam-chip">Packing Station 3</span>
+                        <span class="nvr-more" id="nvr-group-1-more"></span>
+                      </div>
+                    </div>
+                    <button class="btn-icon del" title="Delete NVR device" onclick="openFlyout('delete');event.stopPropagation()">🗑</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- NVR camera rows -->
+              <tr class="cam-row grouped nvr-group-1">
+                <td>
+                  <div class="cam-name">Packing Station 1</div>
+                  <div class="cam-meta">Channel 1</div>
+                </td>
+                <td><span class="setup-badge nvr">◈ NVR</span></td>
+                <td><div class="cam-status-cell"><span class="status-dot online"></span> Online</div></td>
+                <td>
+                  <div class="cam-actions-cell">
+                    <button class="btn-icon edit" onclick="openFlyout('edit')">✏️</button>
+                    <button class="btn-icon del" onclick="openFlyout('delete')">🗑</button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="cam-row grouped nvr-group-1">
+                <td>
+                  <div class="cam-name">Packing Station 2</div>
+                  <div class="cam-meta">Channel 2</div>
+                </td>
+                <td><span class="setup-badge nvr">◈ NVR</span></td>
+                <td><div class="cam-status-cell"><span class="status-dot online"></span> Online</div></td>
+                <td>
+                  <div class="cam-actions-cell">
+                    <button class="btn-icon edit" onclick="openFlyout('edit')">✏️</button>
+                    <button class="btn-icon del" onclick="openFlyout('delete')">🗑</button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="cam-row grouped nvr-group-1">
+                <td>
+                  <div class="cam-name">Packing Station 3</div>
+                  <div class="cam-meta">Channel 3</div>
+                </td>
+                <td><span class="setup-badge nvr">◈ NVR</span></td>
+                <td><div class="cam-status-cell"><span class="status-dot online"></span> Online</div></td>
+                <td>
+                  <div class="cam-actions-cell">
+                    <button class="btn-icon edit" onclick="openFlyout('edit')">✏️</button>
+                    <button class="btn-icon del" onclick="openFlyout('delete')">🗑</button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="cam-row grouped nvr-group-1">
+                <td>
+                  <div class="cam-name">Returns QC Station</div>
+                  <div class="cam-meta">Channel 4</div>
+                </td>
+                <td><span class="setup-badge nvr">◈ NVR</span></td>
+                <td><div class="cam-status-cell"><span class="status-dot online"></span> Online</div></td>
+                <td>
+                  <div class="cam-actions-cell">
+                    <button class="btn-icon edit" onclick="openFlyout('edit')">✏️</button>
+                    <button class="btn-icon del" onclick="openFlyout('delete')">🗑</button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="cam-row grouped nvr-group-1">
+                <td>
+                  <div class="cam-name">Dispatch Gate</div>
+                  <div class="cam-meta">Channel 5</div>
+                </td>
+                <td><span class="setup-badge nvr">◈ NVR</span></td>
+                <td><div class="cam-status-cell"><span class="status-dot offline"></span> Offline</div></td>
+                <td>
+                  <div class="cam-actions-cell">
+                    <button class="btn-icon edit" onclick="openFlyout('edit')">✏️</button>
+                    <button class="btn-icon del" onclick="openFlyout('delete')">🗑</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Direct IP standalone rows -->
+              <tr class="cam-row">
+                <td>
+                  <div class="cam-name">Returns Unpacking</div>
+                  <div class="cam-meta">Direct IP</div>
+                </td>
+                <td><span class="setup-badge direct">◉ Direct</span></td>
+                <td><div class="cam-status-cell"><span class="status-dot online"></span> Online</div></td>
+                <td>
+                  <div class="cam-actions-cell">
+                    <button class="btn-icon edit" onclick="openFlyout('edit')">✏️</button>
+                    <button class="btn-icon del" onclick="openFlyout('delete')">🗑</button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="cam-row">
+                <td>
+                  <div class="cam-name" style="color:var(--slate)">Dispatch Area</div>
+                  <div class="cam-meta">Direct IP</div>
+                </td>
+                <td><span class="setup-badge direct">◉ Direct</span></td>
+                <td><div class="cam-status-cell" style="color:var(--muted)"><span class="status-dot offline"></span> Offline</div></td>
+                <td>
+                  <div class="cam-actions-cell">
+                    <button class="btn-icon edit" onclick="openFlyout('edit')">✏️</button>
+                    <button class="btn-icon del" onclick="openFlyout('delete')">🗑</button>
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
         </div>
       </div>
-      <div class="kpi-cta">Take Action →</div>
-    </div>
-  </div>
-  <!-- ── Open Gaps ── -->
-  <div class="section-hdr">
-    <span class="section-label">Open gaps</span>
-    <span class="section-note">Sorted by ₹ impact · Click row to act</span>
-  </div>
-  <div class="gaps-grid">
-    <div class="gaps-col">
-      <div class="gaps-col-hdr">
-        <span class="gaps-col-hdr-title">🚚 Picked up · Not yet at warehouse</span>
-        <span class="gaps-col-count" id="gaps-count-gap1"></span>
-      </div>
-      <div class="gaps-col-note">* Excludes last 72h — normal transit time</div>
-      <div id="gaps-body-gap1"></div>
-    </div>
-    <div class="gaps-col">
-      <div class="gaps-col-hdr">
-        <span class="gaps-col-hdr-title">🏭 Delivered to warehouse · Not yet in WMS</span>
-        <span class="gaps-col-count" id="gaps-count-gap2"></span>
-      </div>
-      <div id="gaps-body-gap2"></div>
     </div>
   </div>
 </div>
-<!-- ── Flyout ── -->
-<div class="flyout-overlay" id="flyout-overlay" onclick="closeFlyout()"></div>
-<div class="flyout-panel" id="flyout-panel">
-  <div class="flyout-hdr">
-    <div class="flyout-hdr-left">
-      <div class="flyout-title"   id="flyout-title"></div>
-      <div class="flyout-summary" id="flyout-summary"></div>
-    </div>
-    <div class="flyout-hdr-right">
-      <div class="lang-toggle">
-        <button class="lang-btn active" id="lang-btn-en" onclick="setLang('en')">EN</button>
-        <button class="lang-btn"        id="lang-btn-hi" onclick="setLang('hi')">हिंदी</button>
-      </div>
+
+<!-- ════════════ Flyout backdrop ════════════ -->
+<div class="flyout-backdrop" id="backdrop" onclick="closeFlyout()"></div>
+
+<!-- ════════════ Add Camera Flyout (single page) ════════════ -->
+<div class="flyout" id="fly-add">
+  <div class="flyout-header">
+    <h3>Add Camera</h3>
+    <div class="flyout-header-actions">
+      <a class="setup-guide-link" href="https://support.unicommerce.com/unicapture/camera-setup" target="_blank">📖 Camera Setup Guide</a>
       <button class="flyout-close" onclick="closeFlyout()">✕</button>
     </div>
   </div>
-  <div class="flyout-subhdr" id="flyout-subhdr"></div>
-  <div class="flyout-body"   id="flyout-body"></div>
+  <div class="flyout-body">
+
+    <!-- Connection Type -->
+    <div class="form-sep">Connection Type</div>
+    <div class="type-cards" id="typeCards">
+      <div class="type-card selected" onclick="selectType(this,'direct')">
+        <div class="tc-icon">📷</div>
+        <h4>Direct IP Camera</h4>
+        <p>Camera on your network directly</p>
+      </div>
+      <div class="type-card" onclick="selectType(this,'nvr')">
+        <div class="tc-icon">🖥️</div>
+        <h4>Via NVR / DVR</h4>
+        <p>Multiple cameras via recorder</p>
+      </div>
+    </div>
+
+    <!-- Camera Name -->
+    <div class="field">
+      <label>Camera Name</label>
+      <input type="text" id="camNameInput" placeholder="e.g. Packing Station 1"/>
+      <div class="hint">Used to identify this camera in recordings</div>
+    </div>
+
+    <!-- MediaMTX prerequisite -->
+    <div class="prereq-banner" id="mediamtxBanner">
+      <div class="prereq-icon">⚠️</div>
+      <div class="prereq-body">
+        <div class="prereq-title">MediaMTX required on your server</div>
+        <div class="prereq-desc">UniCapture uses MediaMTX to relay RTSP streams from your camera to the browser. Install it on the machine running Uniware before adding cameras.</div>
+        <a class="prereq-download" href="https://github.com/bluenviron/mediamtx/releases/latest" target="_blank">↓ Download MediaMTX</a>
+        <span class="prereq-installed" onclick="dismissBanner()">✓ Already installed</span>
+      </div>
+    </div>
+
+    <!-- Camera Details -->
+    <div class="form-sep">Camera Details</div>
+    <div class="row-2">
+      <div class="field">
+        <label>IP Address</label>
+        <input type="text" id="ipInput" value="192.168.1.64" class="mono"/>
+      </div>
+      <div class="field">
+        <label>Port <span class="opt">default 554</span></label>
+        <input type="text" id="portInput" value="554" class="mono"/>
+      </div>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="userInput" value="admin"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" placeholder="Enter password"/>
+      </div>
+    </div>
+
+    <!-- Manual RTSP URL -->
+    <div class="field">
+      <label>RTSP Stream URL</label>
+      <input type="text" id="rtspUrlInput" class="mono" placeholder="rtsp://username:password@ip:554/stream"/>
+      <div class="hint">Find the RTSP URL format for your camera in the <a href="https://support.unicommerce.com/unicapture/camera-setup" target="_blank" style="color:var(--teal);text-decoration:none;font-weight:600">Camera Setup Guide ↗</a></div>
+    </div>
+
+    <!-- Channel ID — NVR only -->
+    <div id="nvrFields" style="display:none">
+      <div class="info-callout">
+        <strong>NVR setup:</strong> Each camera slot on the recorder has a Channel ID (1 = slot 1, 2 = slot 2…). Enter the channel number for this specific camera.
+      </div>
+      <div class="field">
+        <label>Channel ID</label>
+        <input type="number" value="1" min="1" max="64" class="mono" style="width:100px"/>
+        <div class="hint">Camera slot on the NVR (1–64)</div>
+      </div>
+    </div>
+
+    <!-- Advanced -->
+    <div class="adv-toggle" onclick="toggleAdv('adv-add','adv-arrow')">
+      <svg id="adv-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M3 4.5l3 3 3-3" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Advanced — sub-stream URL
+    </div>
+    <div class="adv-box" id="adv-add" style="display:none">
+      <div class="field">
+        <label>Sub-stream URL <span class="opt">for live preview</span></label>
+        <input type="text" placeholder="Auto-filled — override if needed" class="mono"/>
+      </div>
+    </div>
+
+    <!-- Test + PIP -->
+    <div class="form-sep">Test Connection</div>
+    <div class="test-section" id="addTestSection">
+      <div class="test-header">
+        <div class="test-info">
+          <div class="test-title" id="addTestTitle">Check before saving</div>
+          <div class="test-sub" id="addTestSub">Verify the camera is reachable on your network</div>
+        </div>
+        <button class="btn-test" id="addTestBtn" onclick="runAddTest()">Check Connection →</button>
+      </div>
+      <!-- PIP preview — shown after successful test -->
+      <div class="cam-pip" id="addCamPip">
+        <div class="cam-pip-inner">
+          <div class="cam-bg"></div>
+          <div class="cam-floor"></div>
+          <div class="cam-shelf" style="left:18%;height:52%;bottom:38%"></div>
+          <div class="cam-shelf" style="left:46%;height:58%;bottom:38%"></div>
+          <div class="cam-shelf" style="left:72%;height:48%;bottom:38%"></div>
+          <div class="cam-grid"></div>
+          <div class="cam-scan"></div>
+          <div class="cam-vignette"></div>
+          <div class="cam-corner tl"></div>
+          <div class="cam-corner tr"></div>
+          <div class="cam-corner bl"></div>
+          <div class="cam-corner br"></div>
+          <div class="cam-live"><div class="cam-live-dot"></div>LIVE</div>
+          <div class="cam-ts" id="addCamTs">00:00:00</div>
+          <div class="cam-label" id="addCamLabel">Camera Preview</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="flyout-footer">
+    <button class="btn btn-secondary" onclick="closeFlyout()">Cancel</button>
+    <button class="btn btn-primary" id="addSaveBtn" disabled onclick="closeFlyout()">Save Camera</button>
+  </div>
 </div>
-<div class="toast" id="toast"></div>
+
+<!-- ════════════ Edit Camera Flyout ════════════ -->
+<div class="flyout" id="fly-edit">
+  <div class="flyout-header">
+    <h3>Edit Camera</h3>
+    <button class="flyout-close" onclick="closeFlyout()">✕</button>
+  </div>
+  <div class="flyout-body">
+    <div class="field">
+      <label>Camera Name</label>
+      <input type="text" value="Packing Station 1"/>
+    </div>
+    <div class="form-sep">Camera Details</div>
+    <div class="field">
+      <label>Camera Brand</label>
+      <select><option>Hikvision</option><option>Dahua</option><option>CP Plus</option><option>Other</option></select>
+    </div>
+    <div class="row-2">
+      <div class="field"><label>IP Address</label><input type="text" value="192.168.1.101" class="mono"/></div>
+      <div class="field"><label>Port</label><input type="text" value="554" class="mono"/></div>
+    </div>
+    <div class="row-2">
+      <div class="field"><label>Username</label><input type="text" value="admin"/></div>
+      <div class="field"><label>Password</label><input type="password" value="password"/></div>
+    </div>
+    <div class="url-preview">
+      <div class="up-label">RTSP Stream URL</div>
+      <div class="up-val">rtsp://<em>admin</em>:<em>••••••</em>@<em>192.168.1.101</em>:554/Streaming/Channels/101</div>
+    </div>
+    <div class="adv-toggle" onclick="toggleAdv('adv-edit','adv-edit-arrow')">
+      <svg id="adv-edit-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M3 4.5l3 3 3-3" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Advanced settings
+    </div>
+    <div class="adv-box" id="adv-edit" style="display:none">
+      <div class="field"><label>Sub-stream URL</label><input type="text" value="rtsp://admin:••••••@192.168.1.101:554/Streaming/Channels/102" class="mono"/></div>
+    </div>
+    <div class="form-sep">Test Connection</div>
+    <div class="test-section" id="editTestSection">
+      <div class="test-header">
+        <div class="test-info">
+          <div class="test-title" id="editTestTitle">Re-verify connection</div>
+          <div class="test-sub">Run after any changes to IP, port, or credentials</div>
+        </div>
+        <button class="btn-test" id="editTestBtn" onclick="runEditTest()">Check Connection →</button>
+      </div>
+      <div class="cam-pip" id="editCamPip">
+        <div class="cam-pip-inner">
+          <div class="cam-bg"></div>
+          <div class="cam-floor"></div>
+          <div class="cam-shelf" style="left:25%;height:50%;bottom:38%"></div>
+          <div class="cam-shelf" style="left:60%;height:55%;bottom:38%"></div>
+          <div class="cam-grid"></div>
+          <div class="cam-scan"></div>
+          <div class="cam-vignette"></div>
+          <div class="cam-corner tl"></div>
+          <div class="cam-corner tr"></div>
+          <div class="cam-corner bl"></div>
+          <div class="cam-corner br"></div>
+          <div class="cam-live"><div class="cam-live-dot"></div>LIVE</div>
+          <div class="cam-ts" id="editCamTs">00:00:00</div>
+          <div class="cam-label">Packing Station 1</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flyout-footer">
+    <button class="btn btn-secondary" onclick="closeFlyout()">Cancel</button>
+    <button class="btn btn-primary" onclick="closeFlyout()">Save Changes</button>
+  </div>
+</div>
+
+<!-- ════════════ Delete Flyout ════════════ -->
+<div class="flyout" id="fly-delete" style="width:400px">
+  <div class="flyout-header">
+    <h3>Delete Camera</h3>
+    <button class="flyout-close" onclick="closeFlyout()">✕</button>
+  </div>
+  <div class="del-body">
+    <div class="del-icon-big">🗑️</div>
+    <h3>Delete this camera?</h3>
+    <p>This will remove the camera configuration from this facility. Existing recordings will not be deleted.</p>
+    <div class="del-badge">🎥 Packing Station 1</div>
+  </div>
+  <div class="flyout-footer">
+    <button class="btn btn-secondary" style="flex:1;justify-content:center" onclick="closeFlyout()">Cancel</button>
+    <button class="btn btn-delete-confirm" onclick="closeFlyout()">Delete Camera</button>
+  </div>
+</div>
+
 <script>
-const DATA = {
-  gap1: {
-    flyTitle:   'Returns Not Yet Delivered to Warehouse',
-    flySummary: '78 items · ₹2.7L at risk · Last 30 days',
-    flySubhdr:  'Courier Partner · Sorted by ₹ impact',
-    rows: [
-      { name:'Delhivery',  sub:'Oldest: 21 Feb · Avg 5 days in transit', items:28, rupees:96400,  val:'₹96.4K', pct:18, trend:-3,  email:'ops-returns@delhivery.com' },
-      { name:'Ekart',      sub:'Oldest: 23 Feb · Avg 3 days in transit', items:22, rupees:75200,  val:'₹75.2K', pct:14, trend:-5,  email:'returns@ekart.in'          },
-      { name:'XpressBees', sub:'Oldest: 24 Feb · Avg 2 days in transit', items:15, rupees:51800,  val:'₹51.8K', pct:10, trend:+2,  email:'support@xpressbees.com'    },
-      { name:'ATS',        sub:'Oldest: 20 Feb · Avg 7 days in transit', items:8,  rupees:32000,  val:'₹32K',   pct:22, trend:+4,  email:'ops@ats-logistics.com'     },
-      { name:'Valmo',      sub:'Oldest: 25 Feb · Avg 1 day in transit',  items:5,  rupees:18000,  val:'₹18K',   pct:8,  trend:-1,  email:'support@valmo.in'          },
-    ]
-  },
-  gap2: {
-    flyTitle:   'Returns Delivered — WMS Receipt Pending',
-    flySummary: '142 items · ₹6.0L at risk · Last 30 days',
-    flySubhdr:  'Facility · Sorted by ₹ impact',
-    rows: [
-      { name:'Mumbai Hub', sub:'Oldest unscanned: 24 Feb', items:58, rupees:241500, val:'₹2.4L', pct:15, trend:-7, email:'wm.mumbai@ops.com' },
-      { name:'Delhi NCR',  sub:'Oldest unscanned: 23 Feb', items:47, rupees:196800, val:'₹1.9L', pct:10, trend:+2, email:'wm.delhi@ops.com'  },
-      { name:'Bangalore',  sub:'Oldest unscanned: 25 Feb', items:37, rupees:161700, val:'₹1.6L', pct:10, trend:+4, email:'wm.blr@ops.com'    },
-    ]
-  }
-};
-const SHOW_DEFAULT = 3;
-let currentLang  = 'en';
-let flyoutState  = { gap: null, rows: null };
+let currentType = 'direct';
+let addTsInterval = null;
+let editTsInterval = null;
 
-function setLang(lang) {
-  currentLang = lang;
-  document.getElementById('lang-btn-en').classList.toggle('active', lang === 'en');
-  document.getElementById('lang-btn-hi').classList.toggle('active', lang === 'hi');
-  if (flyoutState.gap) {
-    document.getElementById('flyout-body').innerHTML =
-      buildFlyoutRows(flyoutState.gap, flyoutState.rows);
-  }
+
+function openFlyout(which) {
+  closeFlyout(true);
+  document.getElementById('backdrop').classList.add('open');
+  const map = { add:'fly-add', edit:'fly-edit', delete:'fly-delete' };
+  const el = document.getElementById(map[which]);
+  if (el) el.classList.add('open');
 }
 
-function getGapMessageEn(gap, name, items, value) {
-  const today = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
-  if (gap === 'gap1') {
-    return `Hi ${name} Team,\n\nWe have identified ${items} return shipments (${value}) that were picked up from customers and are currently with your courier, but have not yet been delivered to our warehouse as of ${today}.\n\nPlease note: this data excludes returns created in the last 3 days, as those are within normal transit time.\n\nCould you please investigate why these shipments are still in transit and share an expected delivery timeline? This is directly impacting our warehouse reconciliation.\n\nKindly respond at the earliest.\n\nRegards,\nOps & Finance Team`;
-  } else {
-    return `Hi ${name} Team,\n\nWe have identified ${items} return shipments (${value}) that have been delivered to your warehouse by the courier but have not yet been acknowledged as received in the WMS as of ${today}.\n\nCould you please investigate and confirm WMS receipt? This gap is impacting our financial reconciliation and needs immediate attention.\n\nKindly respond at the earliest.\n\nRegards,\nOps & Finance Team`;
-  }
+function closeFlyout(silent) {
+  document.getElementById('backdrop').classList.remove('open');
+  document.querySelectorAll('.flyout').forEach(f => f.classList.remove('open'));
+  if (!silent) { resetFlyouts(); }
 }
 
-function getGapMessageHi(gap, name, items, value) {
-  const today = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
-  if (gap === 'gap1') {
-    return `नमस्ते ${name} टीम,\n\nहमने ${items} रिटर्न शिपमेंट (${value}) की पहचान की है जो ग्राहकों से पिक अप किए गए हैं और वर्तमान में आपके कूरियर के पास हैं, लेकिन ${today} तक हमारे वेयरहाउस में डिलीवर नहीं हुए हैं।\n\nकृपया ध्यान दें: यह डेटा पिछले 3 दिनों में बनाए गए रिटर्न को शामिल नहीं करता, क्योंकि वे सामान्य ट्रांजिट समय के भीतर माने जाते हैं।\n\nकृपया जांच करें कि ये शिपमेंट अभी भी ट्रांजिट में क्यों हैं और एक अपेक्षित डिलीवरी टाइमलाइन साझा करें। यह हमारे वेयरहाउस रिकॉन्सिलिएशन को सीधे प्रभावित कर रहा है।\n\nकृपया जल्द से जल्द उत्तर दें।\n\nसादर,\nऑप्स और फाइनेंस टीम`;
-  } else {
-    return `नमस्ते ${name} टीम,\n\nहमने ${items} रिटर्न शिपमेंट (${value}) की पहचान की है जो कूरियर द्वारा आपके वेयरहाउस में डिलीवर किए गए हैं, लेकिन ${today} तक WMS में प्राप्त के रूप में स्वीकृत नहीं हुए हैं।\n\nकृपया जांच करें और WMS रसीद की पुष्टि करें। यह अंतर हमारे वित्तीय रिकॉन्सिलिएशन को प्रभावित कर रहा है और इस पर तत्काल ध्यान देने की आवश्यकता है।\n\nकृपया जल्द से जल्द उत्तर दें।\n\nसादर,\nऑप्स और फाइनेंस टीम`;
-  }
+function resetFlyouts() {
+  // Reset Add flyout
+  const as = document.getElementById('addTestSection');
+  if (as) as.className = 'test-section';
+  const at = document.getElementById('addTestTitle');
+  if (at) at.textContent = 'Check before saving';
+  const asub = document.getElementById('addTestSub');
+  if (asub) asub.textContent = 'Verify the camera is reachable on your network';
+  const ab = document.getElementById('addTestBtn');
+  if (ab) { ab.textContent = 'Check Connection →'; ab.disabled = false; ab.style.color = ''; ab.style.borderColor = ''; }
+  const pip = document.getElementById('addCamPip');
+  if (pip) pip.className = 'cam-pip';
+  const sb = document.getElementById('addSaveBtn');
+  if (sb) sb.disabled = true;
+  if (addTsInterval) { clearInterval(addTsInterval); addTsInterval = null; }
+  const banner = document.getElementById('mediamtxBanner');
+  if (banner) { banner.style.display = ''; banner.style.opacity = ''; }
+
+  // Reset Edit flyout
+  const es = document.getElementById('editTestSection');
+  if (es) es.className = 'test-section';
+  const et = document.getElementById('editTestTitle');
+  if (et) et.textContent = 'Re-verify connection';
+  const eb = document.getElementById('editTestBtn');
+  if (eb) { eb.textContent = 'Check Connection →'; eb.disabled = false; eb.style.color = ''; eb.style.borderColor = ''; }
+  const epip = document.getElementById('editCamPip');
+  if (epip) epip.className = 'cam-pip';
+  if (editTsInterval) { clearInterval(editTsInterval); editTsInterval = null; }
 }
 
-function getGapMessage(gap, name, items, value) {
-  return currentLang === 'hi'
-    ? getGapMessageHi(gap, name, items, value)
-    : getGapMessageEn(gap, name, items, value);
-}
 
-function renderGaps() {
-  ['gap1', 'gap2'].forEach(gap => {
-    const d     = DATA[gap];
-    const label = gap === 'gap1' ? 'courier' : 'facility';
-    const total = d.rows.length;
-    document.getElementById('gaps-count-' + gap).textContent =
-      total + ' ' + label + (total !== 1 ? 's' : '');
-    const rowsHTML = d.rows.map((r, i) => {
-      const hidden   = i >= SHOW_DEFAULT ? ' class="issue-row extra-row" style="display:none"' : ' class="issue-row"';
-      const pctLabel = gap === 'gap1' ? 'undelivered' : 'unscanned';
-      const pctStr   = (r.pct < 1 ? r.pct : Math.round(r.pct)) + '% ' + pctLabel;
-      const sub      = `${pctStr} · ${r.sub}`;
-      const abs      = Math.abs(r.trend);
-      let trendCls, trendWord, trendArrow;
-      if (abs < 0.3) {
-        trendCls = 'flat';    trendWord = 'Stable';    trendArrow = '→';
-      } else if (r.trend > 0) {
-        trendCls = 'worse';   trendWord = 'Worsening'; trendArrow = '↑';
-      } else {
-        trendCls = 'better';  trendWord = 'Improving'; trendArrow = '↓';
-      }
-      const trendHTML = `
-        <div class="issue-trend ${trendCls}">
-          <span class="issue-trend-label">${trendArrow} ${trendWord}</span>
-          <span class="issue-trend-sub">vs last wk</span>
-        </div>`;
-      const valCls = r.rupees >= 100000 ? 'hi' : '';
-      return `
-        <div${hidden} data-gap="${gap}" onclick="openFlyoutRow('${gap}', ${i})">
-          <div class="issue-name">
-            <div class="issue-name-main">${r.name}</div>
-            <div class="issue-name-sub">${sub}</div>
-          </div>
-          <span class="issue-items">${r.items}</span>
-          ${trendHTML}
-          <span class="issue-val ${valCls}">${r.val}</span>
-        </div>`;
-    }).join('');
-    const extra = total - SHOW_DEFAULT;
-    const expandHTML = extra > 0
-      ? `<div class="gaps-expand" id="expand-${gap}" data-expanded="false"
-             onclick="toggleExpand('${gap}')">↓ Show ${extra} more</div>`
-      : '';
-    document.getElementById('gaps-body-' + gap).innerHTML = rowsHTML + expandHTML;
-  });
-}
+function toggleNvrGroup(groupId, headerRow) {
+  const MAX_CHIPS = 3;
+  const rows = document.querySelectorAll('tr.' + groupId);
+  const chevron = headerRow.querySelector('.nvr-chevron');
+  const inlineNames = document.getElementById(groupId + '-names');
+  const moreEl = document.getElementById(groupId + '-more');
+  const isVisible = rows.length > 0 && rows[0].style.display !== 'none';
 
-function toggleExpand(gap) {
-  const btn      = document.getElementById('expand-' + gap);
-  const expanded = btn.dataset.expanded === 'true';
-  const extras   = document.querySelectorAll(`.extra-row[data-gap="${gap}"]`);
-  extras.forEach(el => el.style.display = expanded ? 'none' : 'flex');
-  btn.dataset.expanded = expanded ? 'false' : 'true';
-  const n = extras.length;
-  btn.textContent = expanded ? `↓ Show ${n} more` : '↑ Show less';
-}
+  // toggle camera rows
+  rows.forEach(r => r.style.display = isVisible ? 'none' : '');
+  if (chevron) chevron.classList.toggle('collapsed', isVisible);
 
-function buildFlyoutRows(gap, rows) {
-  return rows.map(row => {
-    const globalIdx = DATA[gap].rows.indexOf(row);
-    const msg     = getGapMessage(gap, row.name, row.items, row.val);
-    const subject = encodeURIComponent(
-      gap === 'gap1'
-        ? `Action Required: Returns Delivery Gap — ${row.items} items (${row.val})`
-        : `Action Required: Warehouse Receipt Gap — ${row.items} items (${row.val})`
-    );
-    const preview = msg.replace(/\n/g, ' ').substring(0, 160) + '…';
-    return `
-      <div class="flyout-row">
-        <div class="flyout-row-top">
-          <div class="flyout-row-name">${row.name}</div>
-          <div class="flyout-row-stats">
-            <span class="flyout-stat-count">${row.items} returns</span>
-            <span class="flyout-stat-sep">·</span>
-            <span class="flyout-stat-val">${row.val} pending</span>
-          </div>
-        </div>
-        <div class="flyout-msg" id="fmsg-${gap}-${globalIdx}">${preview}</div>
-        <div class="flyout-msg-toggle" onclick="toggleMsg('fmsg-${gap}-${globalIdx}', this)">▼ Show full message</div>
-        <div class="flyout-actions">
-          <a class="flyout-btn mail"
-             href="mailto:${row.email}?subject=${subject}&body=${encodeURIComponent(msg)}"
-             target="_blank">✉ Send Mail</a>
-          <a class="flyout-btn whatsapp"
-             href="https://wa.me/?text=${encodeURIComponent(msg)}"
-             target="_blank">📲 WhatsApp</a>
-          <button class="flyout-btn link"
-             onclick="copyGapLink('${gap}', '${row.name}')">🔗 Copy Link</button>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-function openFlyout(gap) {
-  const d = DATA[gap];
-  flyoutState = { gap, rows: d.rows };
-  document.getElementById('flyout-title').textContent   = d.flyTitle;
-  document.getElementById('flyout-summary').textContent = d.flySummary;
-  document.getElementById('flyout-subhdr').textContent  = d.flySubhdr;
-  document.getElementById('flyout-body').innerHTML = buildFlyoutRows(gap, d.rows);
-  document.getElementById('flyout-overlay').classList.add('open');
-  document.getElementById('flyout-panel').classList.add('open');
-}
-
-function openFlyoutRow(gap, i) {
-  const d   = DATA[gap];
-  const row = d.rows[i];
-  flyoutState = { gap, rows: [row] };
-  document.getElementById('flyout-title').textContent   = d.flyTitle;
-  document.getElementById('flyout-summary').textContent = `${row.name} · ${row.items} items · ${row.val}`;
-  document.getElementById('flyout-subhdr').textContent  = gap === 'gap1' ? 'Courier Partner' : 'Facility';
-  document.getElementById('flyout-body').innerHTML = buildFlyoutRows(gap, [row]);
-  document.getElementById('flyout-overlay').classList.add('open');
-  document.getElementById('flyout-panel').classList.add('open');
-}
-
-function closeFlyout() {
-  document.getElementById('flyout-overlay').classList.remove('open');
-  document.getElementById('flyout-panel').classList.remove('open');
-  flyoutState = { gap: null, rows: null };
-}
-
-function toggleMsg(id, el) {
-  const box      = document.getElementById(id);
-  const expanded = box.classList.toggle('expanded');
-  const parts    = id.split('-');
-  const gap      = parts[1];
-  const ri       = parseInt(parts[2]);
-  const row      = DATA[gap].rows[ri];
-  if (expanded) {
-    box.textContent = getGapMessage(gap, row.name, row.items, row.val).replace(/\n/g, ' • ');
-    el.textContent  = '▲ Hide message';
-  } else {
-    box.textContent = getGapMessage(gap, row.name, row.items, row.val).replace(/\n/g, ' ').substring(0, 160) + '…';
-    el.textContent  = '▼ Show full message';
+  // show/hide inline chips
+  if (inlineNames) {
+    inlineNames.classList.toggle('visible', isVisible);
+    // update "···+N" overflow indicator
+    if (moreEl) {
+      const total = rows.length;
+      const overflow = total - MAX_CHIPS;
+      moreEl.textContent = overflow > 0 ? '···+' + overflow : '';
+    }
   }
 }
 
-function copyGapLink(gap, name) {
-  const url = window.location.href.split('?')[0] + '?gap=' + gap + '&partner=' + encodeURIComponent(name);
-  navigator.clipboard.writeText(url).catch(() => {});
-  showToast('Link for ' + name + ' copied ✓');
+function dismissBanner() {
+  const b = document.getElementById('mediamtxBanner');
+  if (b) {
+    b.style.transition = 'opacity .2s';
+    b.style.opacity = '0';
+    setTimeout(() => b.style.display = 'none', 200);
+  }
 }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2600);
+function selectType(card, type) {
+  document.querySelectorAll('#typeCards .type-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  currentType = type;
+  const nf = document.getElementById('nvrFields');
+  if (nf) nf.style.display = type === 'nvr' ? 'block' : 'none';
 }
 
-renderGaps();
+
+function toggleAdv(id, arrowId) {
+  const el = document.getElementById(id);
+  const ar = document.getElementById(arrowId);
+  if (!el) return;
+  const vis = el.style.display !== 'none';
+  el.style.display = vis ? 'none' : 'block';
+  if (ar) ar.style.transform = vis ? '' : 'rotate(180deg)';
+}
+
+function startClock(elId) {
+  const el = document.getElementById(elId);
+  if (!el) return null;
+  function tick() { el.textContent = new Date().toLocaleTimeString('en-GB'); }
+  tick();
+  return setInterval(tick, 1000);
+}
+
+function runAddTest() {
+  const btn = document.getElementById('addTestBtn');
+  btn.textContent = 'Checking…';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    // Update test section
+    document.getElementById('addTestSection').classList.add('success');
+    document.getElementById('addTestTitle').textContent = 'Connection verified ✓';
+    document.getElementById('addTestSub').textContent = 'Camera is reachable — live feed active';
+    btn.textContent = 'Re-test';
+    btn.disabled = false;
+    btn.style.color = 'var(--teal)';
+    btn.style.borderColor = 'var(--teal)';
+
+    // Show PIP
+    const pip = document.getElementById('addCamPip');
+    pip.classList.add('visible');
+
+    // Update camera label with entered name
+    const nameEl = document.getElementById('addCamLabel');
+    const nameInput = document.getElementById('camNameInput');
+    if (nameEl && nameInput && nameInput.value.trim()) {
+      nameEl.textContent = nameInput.value.trim();
+    }
+
+    // Start clock
+    addTsInterval = startClock('addCamTs');
+
+    // Enable save
+    document.getElementById('addSaveBtn').disabled = false;
+  }, 1800);
+}
+
+function runEditTest() {
+  const btn = document.getElementById('editTestBtn');
+  btn.textContent = 'Checking…';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    document.getElementById('editTestSection').classList.add('success');
+    document.getElementById('editTestTitle').textContent = 'Connection verified ✓';
+    btn.textContent = 'Re-test';
+    btn.disabled = false;
+    btn.style.color = 'var(--teal)';
+    btn.style.borderColor = 'var(--teal)';
+
+    const pip = document.getElementById('editCamPip');
+    pip.classList.add('visible');
+    editTsInterval = startClock('editCamTs');
+  }, 1800);
+}
 </script>
 </body>
 </html>
