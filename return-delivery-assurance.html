@@ -1,792 +1,864 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>UniCapture — IP Camera Configuration</title>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#e8edf2;min-height:100vh;overflow-x:hidden}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniCapture — ROI Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-:root{
-  --navy:#0F2D5A; --blue:#1A56BB; --teal:#0D9488; --teal-lt:#CCFBF1;
-  --white:#FFFFFF; --off:#F8FAFC; --slate:#475569; --muted:#94A3B8;
-  --border:#E2E8F0; --green:#16A34A; --red:#DC2626; --amber:#D97706;
-  --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.06);
-  --shadow-lg:0 8px 16px rgba(0,0,0,.12),0 24px 48px rgba(0,0,0,.16);
-  --radius:8px;
-}
+    :root {
+      --blue-dark:  #0D2B6B;
+      --blue-mid:   #1652B8;
+      --blue-light: #3B82F6;
+      --orange:     #E84C1F;
+      --orange-lt:  #FFF0EC;
+      --gray-bg:    #F4F6FB;
+      --gray-card:  #FFFFFF;
+      --gray-border:#E5EAF2;
+      --text-main:  #0D1B3E;
+      --text-sub:   #5A6A8A;
+      --text-muted: #9AAABF;
+      --green:      #12B76A;
+      --red:        #F04438;
+      --amber:      #F79009;
+    }
 
-/* ── App shell ── */
-.screen{display:none;flex-direction:column;min-height:100vh}
-.screen.active{display:flex}
-.topbar{height:52px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
-.topbar-logo{display:flex;align-items:center;gap:2px;font-size:17px;font-weight:800}
-.uni{color:var(--teal)}.ware{color:var(--navy)}
-.topbar-badge{font-size:10px;font-weight:700;background:#ECFDF5;color:var(--teal);border:1px solid #A7F3D0;border-radius:4px;padding:2px 7px}
-.topbar-facility{padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--slate);background:var(--off);cursor:pointer}
-.topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px}
-.avatar{width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
-.shell{display:flex;flex:1;position:relative;overflow:hidden}
-.sidebar{width:52px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:6px;flex-shrink:0}
-.sidebar-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:var(--muted);transition:background .15s}
-.sidebar-icon:hover{background:var(--off)}
-.sidebar-icon.active{background:#EBF5FF;color:var(--blue)}
-.content-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
-.breadcrumb{padding:12px 24px 0;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
-.breadcrumb a{color:var(--teal);text-decoration:none;font-weight:500}
-.page-header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px 0}
-.page-title{font-size:18px;font-weight:700;color:var(--navy)}
-.page-sub{font-size:12px;color:var(--muted);margin-top:2px}
-.content-body{padding:16px 24px 32px;flex:1;overflow-y:auto}
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--gray-bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
 
-/* ── Buttons ── */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:var(--radius);font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .15s}
-.btn-primary{background:var(--teal);color:#fff}
-.btn-primary:hover{background:#0b7a72}
-.btn-primary:disabled,.btn-primary[disabled]{opacity:.4;cursor:default;pointer-events:none}
-.btn-secondary{background:#fff;color:var(--slate);border:1.5px solid var(--border)}
-.btn-secondary:hover{background:var(--off)}
-.btn-icon{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;font-size:14px;transition:all .15s;background:transparent}
-.btn-icon:hover{background:var(--off)}
-.btn-icon.edit:hover{background:#EBF5FF;color:var(--blue)}
-.btn-icon.del:hover{background:#FEF2F2;color:var(--red)}
+    /* ─── NAVBAR ─── */
+    .navbar {
+      background: white;
+      border-bottom: 1px solid var(--gray-border);
+      padding: 0 40px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--blue-dark);
+      letter-spacing: -0.4px;
+    }
+    .nav-logo span { color: var(--orange); }
+    .nav-pill {
+      background: var(--orange-lt);
+      color: var(--orange);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+    }
 
+    /* ─── HERO ─── */
+    .hero {
+      background: linear-gradient(135deg, var(--blue-dark) 0%, #1A47A1 55%, #1B6FC4 100%);
+      padding: 60px 24px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0; right: 0;
+      height: 50px;
+      background: var(--gray-bg);
+      clip-path: ellipse(52% 100% at 50% 100%);
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 100px;
+      padding: 7px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      letter-spacing: 0.3px;
+      margin-bottom: 20px;
+    }
+    .hero-eyebrow .dot { width: 7px; height: 7px; background: #4ADE80; border-radius: 50%; }
+    .hero h1 {
+      font-size: clamp(26px, 4.5vw, 44px);
+      font-weight: 900;
+      color: white;
+      line-height: 1.15;
+      letter-spacing: -0.8px;
+      margin-bottom: 14px;
+    }
+    .hero h1 em { font-style: normal; color: #93C5FD; }
+    .hero p {
+      font-size: 16px;
+      color: rgba(255,255,255,0.72);
+      max-width: 420px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
 
-/* ── Camera flat list ── */
-.setup-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
-.setup-badge.direct{background:#EBF5FF;color:var(--blue)}
-.setup-badge.nvr{background:#FDF4FF;color:#7C3AED}
-.status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0}
-.status-dot.online{background:var(--green)}
-.status-dot.offline{background:var(--muted)}
+    /* ─── LAYOUT ─── */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px 72px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 32px;
+    }
+    @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } }
 
-/* ── Camera table ── */
-.cam-table{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-.cam-table table{width:100%;border-collapse:collapse}
-.cam-table thead th{padding:9px 14px;background:var(--off);border-bottom:2px solid var(--border);font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;text-align:left;white-space:nowrap}
-.cam-table thead th:last-child{text-align:right}
+    /* ─── CARDS ─── */
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 28px;
+      border: 1px solid var(--gray-border);
+      box-shadow: 0 1px 4px rgba(13,43,107,0.06), 0 4px 20px rgba(13,43,107,0.04);
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue-mid);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--gray-border);
+    }
+    .full-width { grid-column: 1 / -1; }
 
-/* NVR group header row */
-.cam-table tr.nvr-group-row td{padding:6px 14px;background:#F5F3FF;border-top:1px solid #EDE9FE;border-bottom:1px solid #EDE9FE;cursor:pointer;user-select:none}
-.cam-table tr.nvr-group-row:first-child td{border-top:none}
-.cam-table tr.nvr-group-row:hover td{background:#EDE9FE}
-.nvr-group-cell{display:flex;align-items:center;justify-content:space-between}
-.nvr-group-label{display:flex;align-items:center;gap:8px}
-.nvr-chevron{font-size:9px;color:#7C3AED;transition:transform .2s;display:inline-block}
-.nvr-chevron.collapsed{transform:rotate(-90deg)}
-.nvr-tag{font-size:10px;font-weight:700;color:#7C3AED;background:#EDE9FE;border:1px solid #DDD6FE;border-radius:4px;padding:2px 7px;letter-spacing:.3px;text-transform:uppercase}
-.nvr-ip{font-size:11px;color:#6D28D9;font-family:'Courier New',monospace}
-.nvr-cam-count{font-size:11px;color:var(--muted)}
-.nvr-names-inline{display:none;align-items:center;gap:5px;flex-wrap:nowrap;margin-left:4px;overflow:hidden}
-.nvr-names-inline.visible{display:flex}
-.nvr-cam-chip{font-size:11px;color:#5B21B6;background:#EDE9FE;border:1px solid #DDD6FE;border-radius:4px;padding:1px 8px;font-weight:500;white-space:nowrap}
-.nvr-more{font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap;letter-spacing:.5px}
+    /* ─── INPUTS ─── */
+    .inputs-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 680px) { .inputs-row { grid-template-columns: 1fr; } }
 
-/* Camera rows */
-.cam-table tr.cam-row td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:13px;color:var(--slate)}
-.cam-table tr.cam-row:last-child td{border-bottom:none}
-.cam-table tr.cam-row:hover td{background:#FAFBFC}
-.cam-table tr.cam-row.grouped td{border-left:3px solid #DDD6FE}
-.cam-table tr.cam-row.grouped td:first-child{padding-left:22px}
-.cam-table tr.cam-row.grouped:hover td{background:#FDFBFF}
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field > label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .field-hint {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
 
-.cam-name{font-size:13px;font-weight:700;color:var(--navy);line-height:1.3}
-.cam-meta{font-size:11px;color:var(--muted);margin-top:1px}
-.cam-status-cell{display:flex;align-items:center;gap:6px;white-space:nowrap}
-.cam-actions-cell{display:flex;gap:4px;justify-content:flex-end}
+    .input-wrap { position: relative; }
+    .prefix {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-weight: 700;
+      color: var(--blue-mid);
+      font-size: 15px;
+      pointer-events: none;
+    }
+    input[type="number"] {
+      width: 100%;
+      border: 1.5px solid var(--gray-border);
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      padding: 11px 14px 11px 32px;
+      background: #FAFBFF;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input[type="number"].no-prefix { padding-left: 14px; }
+    input[type="number"]:focus {
+      border-color: var(--blue-mid);
+      box-shadow: 0 0 0 3px rgba(22,82,184,0.1);
+      background: white;
+    }
+    input[type="number"]::-webkit-inner-spin-button { opacity: 1; }
 
-/* ── Flyout ── */
-.flyout-backdrop{position:fixed;inset:0;background:rgba(15,45,90,.35);z-index:50;opacity:0;pointer-events:none;transition:opacity .25s}
-.flyout-backdrop.open{opacity:1;pointer-events:all}
-.flyout{position:fixed;top:0;right:0;bottom:0;width:500px;background:var(--white);box-shadow:var(--shadow-lg);z-index:51;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
-.flyout.open{transform:translateX(0)}
-.flyout-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);flex-shrink:0;gap:12px}
-.flyout-header h3{font-size:16px;font-weight:700;color:var(--navy);flex:1}
-.flyout-header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.setup-guide-link{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--teal);text-decoration:none;padding:4px 10px;border:1px solid #A7F3D0;border-radius:6px;background:#F0FDFA;transition:all .15s;white-space:nowrap}
-.setup-guide-link:hover{background:#CCFBF1;border-color:var(--teal)}
-.flyout-close{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;border:none;background:var(--off);color:var(--muted);font-size:16px;cursor:pointer;line-height:1}
-.flyout-close:hover{background:var(--border);color:var(--slate)}
-.flyout-body{flex:1;overflow-y:auto;padding:20px 22px}
-.flyout-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid var(--border);flex-shrink:0;background:var(--white)}
+    select {
+      width: 100%;
+      border: 1.5px solid var(--gray-border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      padding: 11px 36px 11px 14px;
+      background: #FAFBFF url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235A6A8A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;
+      -webkit-appearance: none;
+      outline: none;
+      transition: border-color 0.15s;
+      cursor: pointer;
+    }
+    select:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(22,82,184,0.1); }
 
-/* ── Form ── */
-.field{margin-bottom:16px}
-.field label{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
-.field label .opt{font-size:10px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0}
-.field input,.field select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;color:#334155;background:var(--white);transition:border-color .15s,box-shadow .15s;font-family:inherit}
-.field input:focus,.field select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,148,136,.10)}
-.field input.mono{font-family:'Courier New',monospace;font-size:12px;color:var(--slate)}
-.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
-.field .hint{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
-.row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-sep{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:20px 0 14px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+    /* ─── SLIDER + BENCHMARK ─── */
+    .slider-block { display: flex; flex-direction: column; gap: 10px; }
+    .slider-header { display: flex; align-items: center; justify-content: space-between; }
+    .slider-label { font-size: 13px; font-weight: 600; color: var(--text-main); }
+    .slider-number {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--blue-dark);
+      min-width: 54px;
+      text-align: right;
+    }
 
-/* ── Type cards ── */
-.type-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.type-card{border:2px solid var(--border);border-radius:10px;padding:14px 12px;cursor:pointer;transition:all .15s}
-.type-card:hover{border-color:#93C5FD;background:#F0F7FF}
-.type-card.selected{border-color:var(--teal);background:#F0FDFA}
-.tc-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:8px;background:var(--off);transition:background .15s}
-.type-card.selected .tc-icon{background:var(--teal-lt)}
-.type-card h4{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:3px}
-.type-card p{font-size:11px;color:var(--muted);line-height:1.4}
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #e8eef7;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--blue-mid);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(22,82,184,0.35);
+      border: 2px solid white;
+    }
 
-/* ── URL preview ── */
-.url-preview{background:var(--off);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:16px}
-.up-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin-bottom:4px;text-transform:uppercase}
-.up-val{font-size:11.5px;color:var(--slate);font-family:'Courier New',monospace;word-break:break-all;line-height:1.5}
-.up-val em{color:var(--teal);font-style:normal;font-weight:600}
+    /* Benchmark row */
+    .benchmark-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--gray-bg);
+      border: 1px solid var(--gray-border);
+      border-radius: 8px;
+      padding: 9px 13px;
+      margin-top: 4px;
+    }
+    .benchmark-label {
+      font-size: 12px;
+      color: var(--text-sub);
+      font-weight: 500;
+    }
+    .benchmark-label strong { color: var(--text-main); }
+    .benchmark-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .badge-above { background: #FEF3F2; color: var(--red); }
+    .badge-below { background: #ECFDF3; color: var(--green); }
+    .badge-at    { background: #FFFAEB; color: var(--amber); }
 
-/* ── Info callout ── */
-.info-callout{background:#EBF5FF;border:1px solid #BFDBFE;border-radius:7px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#1e40af;line-height:1.5}
-.info-callout strong{font-weight:700}
+    /* ─── RESULTS CARD ─── */
+    .results-card {
+      background: linear-gradient(135deg, var(--blue-dark) 0%, #1A47A1 100%);
+      border-radius: 20px;
+      padding: 32px;
+      border: none;
+      grid-column: 1 / -1;
+    }
+    .results-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+    }
+    .results-grid {
+      display: flex;
+      justify-content: center;
+    }
 
-/* ── MediaMTX prereq banner ── */
-.prereq-banner{background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:12px 14px;margin-bottom:20px;display:flex;gap:12px;align-items:flex-start}
-.prereq-icon{font-size:16px;flex-shrink:0;margin-top:1px}
-.prereq-body{flex:1}
-.prereq-title{font-size:12px;font-weight:700;color:#92400E;margin-bottom:3px}
-.prereq-desc{font-size:11px;color:#78350F;line-height:1.5;margin-bottom:8px}
-.prereq-download{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:#F59E0B;color:#fff;border-radius:6px;font-size:11px;font-weight:700;text-decoration:none;transition:background .15s}
-.prereq-download:hover{background:#D97706}
-.prereq-installed{display:inline-flex;align-items:center;gap:4px;margin-left:8px;font-size:11px;color:#6B7280;cursor:pointer;padding:5px 0}
-.prereq-installed:hover{color:var(--slate)}
+    .result-item {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 20px 16px;
+      text-align: center;
+      transition: background 0.2s;
+    }
+    .result-item:hover { background: rgba(255,255,255,0.12); }
+    .result-item .r-icon { font-size: 24px; margin-bottom: 10px; }
+    .result-item .r-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .result-item .r-value {
+      font-size: clamp(18px, 2.2vw, 24px);
+      font-weight: 800;
+      color: white;
+      line-height: 1;
+    }
+    .result-item .r-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.38);
+      margin-top: 5px;
+    }
 
-/* ── Advanced toggle ── */
-.adv-toggle{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none;margin-bottom:12px;padding:4px 0}
-.adv-toggle:hover{color:var(--slate)}
-.adv-toggle svg{transition:transform .2s}
-.adv-box{background:var(--off);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:14px}
+    .highlight-item {
+      background: linear-gradient(135deg, #E84C1F 0%, #FF6B35 100%);
+      border: none;
+      box-shadow: 0 6px 24px rgba(232,76,31,0.4);
+    }
+    .highlight-item .r-label { color: rgba(255,255,255,0.8); }
+    .highlight-item .r-value { font-size: clamp(22px, 3vw, 30px); }
+    .highlight-item .r-sub { color: rgba(255,255,255,0.7); }
 
-/* ── Test + PIP ── */
-.test-section{border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-top:4px;transition:border-color .3s}
-.test-section.success{border-color:var(--teal)}
-.test-section.fail{border-color:var(--red)}
-.test-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;gap:12px}
-.test-info{flex:1}
-.test-title{font-size:13px;font-weight:700;color:var(--navy);transition:color .3s}
-.test-section.success .test-title{color:var(--teal)}
-.test-section.fail .test-title{color:var(--red)}
-.test-sub{font-size:11px;color:var(--muted);margin-top:2px}
-.btn-test{flex-shrink:0;padding:8px 16px;background:var(--white);border:1.5px solid var(--blue);border-radius:var(--radius);font-size:12px;font-weight:700;color:var(--blue);cursor:pointer;white-space:nowrap;transition:all .15s}
-.btn-test:disabled{opacity:.5;cursor:default}
+    /* ─── ASSUMPTION NOTE ─── */
+    .note {
+      background: white;
+      border: 1px solid var(--gray-border);
+      border-radius: 14px;
+      padding: 16px 20px;
+      font-size: 12.5px;
+      color: var(--text-sub);
+      line-height: 1.7;
+      grid-column: 1 / -1;
+    }
+    .note strong { color: var(--blue-mid); }
 
-/* Camera PIP widget */
-.cam-pip{display:none;border-top:1px solid #1a2a1a;background:#0d1117;position:relative}
-.cam-pip.visible{display:block}
-.cam-pip-inner{width:100%;aspect-ratio:16/9;position:relative;overflow:hidden}
+    /* ─── CTA ─── */
+    .cta-block {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 8px 0;
+    }
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #E84C1F, #FF6B35);
+      color: white;
+      border: none;
+      padding: 16px 40px;
+      border-radius: 100px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: -0.1px;
+      box-shadow: 0 4px 20px rgba(232,76,31,0.35);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(232,76,31,0.45);
+    }
+    .cta-btn svg { transition: transform 0.15s; }
+    .cta-btn:hover svg { transform: translateX(3px); }
+    .cta-sub {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .trust-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; display: inline-block; }
 
-/* Simulated warehouse scene */
-.cam-bg{position:absolute;inset:0;background:linear-gradient(160deg,#0a1a0a 0%,#0d1117 50%,#0a0f1a 100%)}
-.cam-floor{position:absolute;bottom:0;left:0;right:0;height:38%;background:linear-gradient(to top,rgba(30,50,30,.4),transparent)}
-.cam-shelf{position:absolute;width:2px;background:rgba(60,100,60,.2);bottom:38%}
-.cam-shelf::before{content:'';position:absolute;top:0;left:-18px;right:-18px;height:2px;background:rgba(60,100,60,.2)}
-.cam-shelf::after{content:'';position:absolute;top:35%;left:-18px;right:-18px;height:2px;background:rgba(60,100,60,.15)}
+    /* ─── MODAL ─── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(13,27,62,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .overlay.open { display: flex; }
 
-/* Grid overlay */
-.cam-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,200,80,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,80,.025) 1px,transparent 1px);background-size:44px 44px}
-/* Scanlines */
-.cam-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.07) 0px,rgba(0,0,0,.07) 1px,transparent 1px,transparent 3px)}
-/* Vignette */
-.cam-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%)}
+    .modal {
+      background: white;
+      border-radius: 24px;
+      padding: 40px 36px 36px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 24px 64px rgba(13,27,62,0.28);
+      position: relative;
+      animation: rise 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes rise {
+      from { transform: translateY(20px) scale(0.98); opacity: 0; }
+      to   { transform: translateY(0)    scale(1);    opacity: 1; }
+    }
+    .modal-x {
+      position: absolute;
+      top: 16px; right: 20px;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--gray-bg);
+      border: none;
+      font-size: 18px;
+      color: var(--text-sub);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .modal-x:hover { background: #E8EEF7; }
 
-.cam-live{position:absolute;top:10px;left:10px;display:flex;align-items:center;gap:5px;background:rgba(220,38,38,.92);color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:4px;letter-spacing:.5px}
-.cam-live-dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
-.cam-ts{position:absolute;top:10px;right:10px;font-size:10px;color:rgba(255,255,255,.75);font-family:'Courier New',monospace;background:rgba(0,0,0,.5);padding:2px 7px;border-radius:3px}
-.cam-label{position:absolute;bottom:10px;left:10px;font-size:11px;color:rgba(255,255,255,.85);font-family:'Courier New',monospace;background:rgba(0,0,0,.55);padding:3px 8px;border-radius:3px}
-.cam-corner{position:absolute;width:14px;height:14px;border-color:rgba(0,220,80,.5);border-style:solid;border-width:0}
-.cam-corner.tl{top:8px;left:8px;border-top-width:2px;border-left-width:2px}
-.cam-corner.tr{top:8px;right:8px;border-top-width:2px;border-right-width:2px}
-.cam-corner.bl{bottom:8px;left:8px;border-bottom-width:2px;border-left-width:2px}
-.cam-corner.br{bottom:8px;right:8px;border-bottom-width:2px;border-right-width:2px}
+    .modal-saving-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--orange-lt);
+      color: var(--orange);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 7px 16px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+    .modal h3 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.4px;
+      margin-bottom: 6px;
+    }
+    .modal > p {
+      font-size: 13.5px;
+      color: var(--text-sub);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
 
-/* ── Delete flyout ── */
-.del-body{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 32px;text-align:center;flex:1}
-.del-icon-big{font-size:44px;margin-bottom:16px;opacity:.8}
-.del-body h3{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:8px}
-.del-body p{font-size:13px;color:var(--muted);line-height:1.6;max-width:300px}
-.del-badge{display:inline-flex;align-items:center;gap:6px;margin:14px auto 0;background:var(--off);border:1px solid var(--border);border-radius:6px;padding:7px 14px;font-size:12px;font-weight:600;color:var(--slate)}
-.btn-delete-confirm{background:var(--red);color:#fff;border:none;flex:1;justify-content:center}
-.btn-delete-confirm:hover{background:#b91c1c}
+    .m-field { margin-bottom: 14px; }
+    .m-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+    .m-field input {
+      width: 100%;
+      border: 1.5px solid var(--gray-border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      background: #FAFBFF;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .m-field input:focus {
+      border-color: var(--blue-mid);
+      box-shadow: 0 0 0 3px rgba(22,82,184,0.1);
+      background: white;
+    }
+    .m-field input.error { border-color: var(--red); }
 
-/* ── Empty state ── */
-.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center}
-.empty-icon{font-size:52px;margin-bottom:16px;opacity:.4}
-.empty-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px}
-.empty-sub{font-size:13px;color:var(--muted);max-width:340px;line-height:1.6;margin-bottom:24px}
-</style>
+    .modal-submit {
+      width: 100%;
+      background: linear-gradient(135deg, #E84C1F, #FF6B35);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 100px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      margin-top: 6px;
+      box-shadow: 0 4px 16px rgba(232,76,31,0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .modal-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,76,31,0.4); }
+
+    .modal-disclaimer {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    /* Success */
+    .modal-success {
+      display: none;
+      text-align: center;
+      padding: 12px 0;
+    }
+    .success-icon {
+      width: 64px; height: 64px;
+      background: #ECFDF3;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 16px;
+    }
+    .modal-success h3 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+    .modal-success p { font-size: 14px; color: var(--text-sub); line-height: 1.6; margin: 0; }
+
+    /* ─── Monthly loss nudge ─── */
+    .monthly-loss {
+      font-size: 15px;
+      color: var(--text-sub);
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    .monthly-loss strong {
+      color: var(--red);
+      font-size: 17px;
+    }
+
+    /* ─── Calc note (footer) ─── */
+    .calc-note {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      text-align: center;
+      max-width: 780px;
+      margin: 8px auto 0;
+      padding: 0 20px;
+    }
+    .calc-note strong { color: var(--text-sub); }
+
+    /* ─── Footer ─── */
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 16px;
+      padding-bottom: 8px;
+    }
+  </style>
 </head>
 <body>
 
-<!-- ════════════ Camera List ════════════ -->
-<div id="s-list" class="screen active">
-  <div class="topbar">
-    <div class="topbar-logo"><span class="uni">Uni</span><span class="ware">ware</span></div>
-    <div class="topbar-badge">UniCapture</div>
-    <div class="topbar-facility">CO-GURGAON ▾</div>
-    <div class="topbar-right"><div class="avatar">UT</div></div>
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="nav-logo">
+    Uni<span>commerce</span>
   </div>
-  <div class="shell">
-    <div class="sidebar">
-      <div class="sidebar-icon">🏠</div>
-      <div class="sidebar-icon">📋</div>
-      <div class="sidebar-icon active">🎥</div>
-      <div class="sidebar-icon">⚙️</div>
-    </div>
-    <div class="content-wrap">
-      <div class="breadcrumb"><a>UniCapture</a><span>›</span><span>IP Camera Configuration</span></div>
-      <div class="page-header">
-        <div>
-          <div class="page-title">IP Camera Configuration</div>
-          <div class="page-sub">Manage cameras at this facility</div>
-        </div>
-        <button class="btn btn-primary" onclick="openFlyout('add')">+ Add Camera</button>
-      </div>
-      <div class="content-body">
-        <div class="cam-table">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:40%">Camera Name</th>
-                <th style="width:18%">Connection</th>
-                <th style="width:18%">Status</th>
-                <th style="width:24%"></th>
-              </tr>
-            </thead>
-            <tbody>
+  <div class="nav-pill">UniCapture · ROI Calculator</div>
+</nav>
 
-              <!-- NVR group header -->
-              <tr class="nvr-group-row" onclick="toggleNvrGroup('nvr-group-1', this)">
-                <td colspan="4">
-                  <div class="nvr-group-cell">
-                    <div class="nvr-group-label">
-                      <span class="nvr-chevron" id="nvr-chevron-1">▼</span>
-                      <span class="nvr-tag">NVR</span>
-                      <span class="nvr-ip">192.168.1.101</span>
-                      <div class="nvr-names-inline" id="nvr-group-1-names">
-                        <span class="nvr-cam-chip">Packing Station 1</span>
-                        <span class="nvr-cam-chip">Packing Station 2</span>
-                        <span class="nvr-cam-chip">Packing Station 3</span>
-                        <span class="nvr-more" id="nvr-group-1-more"></span>
-                      </div>
-                    </div>
-                    <button class="btn-icon del" title="Delete NVR device" onclick="openFlyout('delete');event.stopPropagation()">🗑</button>
-                  </div>
-                </td>
-              </tr>
-
-              <!-- NVR camera rows -->
-              <tr class="cam-row grouped nvr-group-1">
-                <td>
-                  <div class="cam-name">Packing Station 1</div>
-                  <div class="cam-meta">Channel 1</div>
-                </td>
-                <td><span class="setup-badge nvr">◈ NVR</span></td>
-                <td><div class="cam-status-cell"><span class="status-dot online"></span> Online</div></td>
-                <td>
-                  <div class="cam-actions-cell">
-                    <button class="btn-icon edit" onclick="openFlyout('edit')">✏️</button>
-                    <button class="btn-icon del" onclick="openFlyout('delete')">🗑</button>
-                  </div>
-                </td>
-              </tr>
-
-              <tr class="cam-row grouped nvr-group-1">
-                <td>
-                  <div class="cam-name">Packing Station 2</div>
-                  <div class="cam-meta">Channel 2</div>
-                </td>
-                <td><span class="setup-badge nvr">◈ NVR</span></td>
-                <td><div class="cam-status-cell"><span class="status-dot online"></span> Online</div></td>
-                <td>
-                  <div class="cam-actions-cell">
-                    <button class="btn-icon edit" onclick="openFlyout('edit')">✏️</button>
-                    <button class="btn-icon del" onclick="openFlyout('delete')">🗑</button>
-                  </div>
-                </td>
-              </tr>
-
-              <tr class="cam-row grouped nvr-group-1">
-                <td>
-                  <div class="cam-name">Packing Station 3</div>
-                  <div class="cam-meta">Channel 3</div>
-                </td>
-                <td><span class="setup-badge nvr">◈ NVR</span></td>
-                <td><div class="cam-status-cell"><span class="status-dot online"></span> Online</div></td>
-                <td>
-                  <div class="cam-actions-cell">
-                    <button class="btn-icon edit" onclick="openFlyout('edit')">✏️</button>
-                    <button class="btn-icon del" onclick="openFlyout('delete')">🗑</button>
-                  </div>
-                </td>
-              </tr>
-
-              <tr class="cam-row grouped nvr-group-1">
-                <td>
-                  <div class="cam-name">Returns QC Station</div>
-                  <div class="cam-meta">Channel 4</div>
-                </td>
-                <td><span class="setup-badge nvr">◈ NVR</span></td>
-                <td><div class="cam-status-cell"><span class="status-dot online"></span> Online</div></td>
-                <td>
-                  <div class="cam-actions-cell">
-                    <button class="btn-icon edit" onclick="openFlyout('edit')">✏️</button>
-                    <button class="btn-icon del" onclick="openFlyout('delete')">🗑</button>
-                  </div>
-                </td>
-              </tr>
-
-              <tr class="cam-row grouped nvr-group-1">
-                <td>
-                  <div class="cam-name">Dispatch Gate</div>
-                  <div class="cam-meta">Channel 5</div>
-                </td>
-                <td><span class="setup-badge nvr">◈ NVR</span></td>
-                <td><div class="cam-status-cell"><span class="status-dot offline"></span> Offline</div></td>
-                <td>
-                  <div class="cam-actions-cell">
-                    <button class="btn-icon edit" onclick="openFlyout('edit')">✏️</button>
-                    <button class="btn-icon del" onclick="openFlyout('delete')">🗑</button>
-                  </div>
-                </td>
-              </tr>
-
-              <!-- Direct IP standalone rows -->
-              <tr class="cam-row">
-                <td>
-                  <div class="cam-name">Returns Unpacking</div>
-                  <div class="cam-meta">Direct IP</div>
-                </td>
-                <td><span class="setup-badge direct">◉ Direct</span></td>
-                <td><div class="cam-status-cell"><span class="status-dot online"></span> Online</div></td>
-                <td>
-                  <div class="cam-actions-cell">
-                    <button class="btn-icon edit" onclick="openFlyout('edit')">✏️</button>
-                    <button class="btn-icon del" onclick="openFlyout('delete')">🗑</button>
-                  </div>
-                </td>
-              </tr>
-
-              <tr class="cam-row">
-                <td>
-                  <div class="cam-name" style="color:var(--slate)">Dispatch Area</div>
-                  <div class="cam-meta">Direct IP</div>
-                </td>
-                <td><span class="setup-badge direct">◉ Direct</span></td>
-                <td><div class="cam-status-cell" style="color:var(--muted)"><span class="status-dot offline"></span> Offline</div></td>
-                <td>
-                  <div class="cam-actions-cell">
-                    <button class="btn-icon edit" onclick="openFlyout('edit')">✏️</button>
-                    <button class="btn-icon del" onclick="openFlyout('delete')">🗑</button>
-                  </div>
-                </td>
-              </tr>
-
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
+<!-- Hero -->
+<div class="hero">
+  <h1>How much revenue are you<br>losing without <em>video proof?</em></h1>
+  <p>Most sellers don't know until it's too late.<br>Find out in 30 seconds — and see how you compare to your category.</p>
 </div>
 
-<!-- ════════════ Flyout backdrop ════════════ -->
-<div class="flyout-backdrop" id="backdrop" onclick="closeFlyout()"></div>
+<!-- Main -->
+<div class="container">
+  <div class="grid">
 
-<!-- ════════════ Add Camera Flyout (single page) ════════════ -->
-<div class="flyout" id="fly-add">
-  <div class="flyout-header">
-    <h3>Add Camera</h3>
-    <div class="flyout-header-actions">
-      <a class="setup-guide-link" href="https://support.unicommerce.com/unicapture/camera-setup" target="_blank">📖 Camera Setup Guide</a>
-      <button class="flyout-close" onclick="closeFlyout()">✕</button>
-    </div>
-  </div>
-  <div class="flyout-body">
+    <!-- Input Card -->
+    <div class="card full-width">
+      <div class="card-title">Your Business</div>
 
-    <!-- Connection Type -->
-    <div class="form-sep">Connection Type</div>
-    <div class="type-cards" id="typeCards">
-      <div class="type-card selected" onclick="selectType(this,'direct')">
-        <div class="tc-icon">📷</div>
-        <h4>Direct IP Camera</h4>
-        <p>Camera on your network directly</p>
-      </div>
-      <div class="type-card" onclick="selectType(this,'nvr')">
-        <div class="tc-icon">🖥️</div>
-        <h4>Via NVR / DVR</h4>
-        <p>Multiple cameras via recorder</p>
-      </div>
-    </div>
-
-    <!-- Camera Name -->
-    <div class="field">
-      <label>Camera Name</label>
-      <input type="text" id="camNameInput" placeholder="e.g. Packing Station 1"/>
-      <div class="hint">Used to identify this camera in recordings</div>
-    </div>
-
-    <!-- MediaMTX prerequisite -->
-    <div class="prereq-banner" id="mediamtxBanner">
-      <div class="prereq-icon">⚠️</div>
-      <div class="prereq-body">
-        <div class="prereq-title">MediaMTX required on your server</div>
-        <div class="prereq-desc">UniCapture uses MediaMTX to relay RTSP streams from your camera to the browser. Install it on the machine running Uniware before adding cameras.</div>
-        <a class="prereq-download" href="https://github.com/bluenviron/mediamtx/releases/latest" target="_blank">↓ Download MediaMTX</a>
-        <span class="prereq-installed" onclick="dismissBanner()">✓ Already installed</span>
-      </div>
-    </div>
-
-    <!-- Camera Details -->
-    <div class="form-sep">Camera Details</div>
-    <div class="row-2">
-      <div class="field">
-        <label>IP Address</label>
-        <input type="text" id="ipInput" value="192.168.1.64" class="mono"/>
-      </div>
-      <div class="field">
-        <label>Port <span class="opt">default 554</span></label>
-        <input type="text" id="portInput" value="554" class="mono"/>
-      </div>
-    </div>
-    <div class="row-2">
-      <div class="field">
-        <label>Username</label>
-        <input type="text" id="userInput" value="admin"/>
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <input type="password" placeholder="Enter password"/>
-      </div>
-    </div>
-
-    <!-- Manual RTSP URL -->
-    <div class="field">
-      <label>RTSP Stream URL</label>
-      <input type="text" id="rtspUrlInput" class="mono" placeholder="rtsp://username:password@ip:554/stream"/>
-      <div class="hint">Find the RTSP URL format for your camera in the <a href="https://support.unicommerce.com/unicapture/camera-setup" target="_blank" style="color:var(--teal);text-decoration:none;font-weight:600">Camera Setup Guide ↗</a></div>
-    </div>
-
-    <!-- Channel ID — NVR only -->
-    <div id="nvrFields" style="display:none">
-      <div class="info-callout">
-        <strong>NVR setup:</strong> Each camera slot on the recorder has a Channel ID (1 = slot 1, 2 = slot 2…). Enter the channel number for this specific camera.
-      </div>
-      <div class="field">
-        <label>Channel ID</label>
-        <input type="number" value="1" min="1" max="64" class="mono" style="width:100px"/>
-        <div class="hint">Camera slot on the NVR (1–64)</div>
-      </div>
-    </div>
-
-    <!-- Advanced -->
-    <div class="adv-toggle" onclick="toggleAdv('adv-add','adv-arrow')">
-      <svg id="adv-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
-        <path d="M3 4.5l3 3 3-3" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      Advanced — sub-stream URL
-    </div>
-    <div class="adv-box" id="adv-add" style="display:none">
-      <div class="field">
-        <label>Sub-stream URL <span class="opt">for live preview</span></label>
-        <input type="text" placeholder="Auto-filled — override if needed" class="mono"/>
-      </div>
-    </div>
-
-    <!-- Test + PIP -->
-    <div class="form-sep">Test Connection</div>
-    <div class="test-section" id="addTestSection">
-      <div class="test-header">
-        <div class="test-info">
-          <div class="test-title" id="addTestTitle">Check before saving</div>
-          <div class="test-sub" id="addTestSub">Verify the camera is reachable on your network</div>
+      <!-- AOV Slider -->
+      <div class="slider-block" style="margin-bottom: 28px;">
+        <div class="slider-header">
+          <span class="slider-label">Average Order Value</span>
+          <span class="slider-number" id="aovVal">₹2,000</span>
         </div>
-        <button class="btn-test" id="addTestBtn" onclick="runAddTest()">Check Connection →</button>
+        <input type="range" id="aov" min="200" max="10000" step="100" value="2000"
+               oninput="syncAOV(); calculate()">
       </div>
-      <!-- PIP preview — shown after successful test -->
-      <div class="cam-pip" id="addCamPip">
-        <div class="cam-pip-inner">
-          <div class="cam-bg"></div>
-          <div class="cam-floor"></div>
-          <div class="cam-shelf" style="left:18%;height:52%;bottom:38%"></div>
-          <div class="cam-shelf" style="left:46%;height:58%;bottom:38%"></div>
-          <div class="cam-shelf" style="left:72%;height:48%;bottom:38%"></div>
-          <div class="cam-grid"></div>
-          <div class="cam-scan"></div>
-          <div class="cam-vignette"></div>
-          <div class="cam-corner tl"></div>
-          <div class="cam-corner tr"></div>
-          <div class="cam-corner bl"></div>
-          <div class="cam-corner br"></div>
-          <div class="cam-live"><div class="cam-live-dot"></div>LIVE</div>
-          <div class="cam-ts" id="addCamTs">00:00:00</div>
-          <div class="cam-label" id="addCamLabel">Camera Preview</div>
+
+      <!-- Shipments Slider -->
+      <div class="slider-block" style="margin-bottom: 28px;">
+        <div class="slider-header">
+          <span class="slider-label">Monthly Shipments</span>
+          <span class="slider-number" id="shipmentsVal">5,000</span>
+        </div>
+        <input type="range" id="shipments" min="500" max="100000" step="500" value="5000"
+               oninput="syncShipments(); calculate()">
+      </div>
+
+      <!-- Category -->
+      <div class="field" style="margin-bottom: 28px;">
+        <label>Business Category <span class="field-hint" style="font-weight:400; display:inline;">— sets your industry benchmark</span></label>
+        <select id="category" onchange="updateBenchmark(); calculate()">
+          <option value="apparel">Apparel &amp; Fashion</option>
+          <option value="electronics">Electronics &amp; Gadgets</option>
+          <option value="home">Home &amp; Furniture</option>
+          <option value="beauty">Beauty &amp; Personal Care</option>
+          <option value="sports">Sports &amp; Fitness</option>
+          <option value="fmcg">FMCG / Grocery</option>
+          <option value="books">Books &amp; Stationery</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <!-- Dispute Rate Slider -->
+      <div class="slider-block">
+        <div class="slider-header">
+          <span class="slider-label">Your Return Rate</span>
+          <span class="slider-number" id="claimRateVal">25.0%</span>
+        </div>
+        <input type="range" id="claimRate" min="0.5" max="40" step="0.5" value="25"
+               oninput="syncSlider(); calculate()">
+        <!-- Industry return rate info row -->
+        <div class="benchmark-row">
+          <span class="benchmark-label">Avg industry return rate for <strong id="benchCategoryName">Apparel &amp; Fashion</strong></span>
+          <span class="benchmark-badge badge-at" id="benchBadge">
+            <span id="benchIcon">📦</span>
+            <span id="benchText">25.0%</span>
+          </span>
         </div>
       </div>
     </div>
 
+    <!-- Results Card -->
+    <div class="results-card full-width">
+      <div class="results-grid">
+
+        <div class="result-item highlight-item" style="max-width: 360px; width: 100%; padding: 32px 40px;">
+          <div class="r-icon">💰</div>
+          <div class="r-label">Your Estimated Recovery with UniCapture</div>
+          <div class="r-value" id="totalSavings" style="font-size: clamp(28px, 4vw, 42px); margin: 8px 0;">₹0</div>
+          <div class="r-sub" id="totalSub">per month · ₹0 per year</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-block">
+      <button class="cta-btn" onclick="openModal()">
+        Get My Recovery Plan
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="cta-sub">
+        <span class="trust-dot"></span>
+        <span id="trustLine">Bearhouse, Palmonas &amp; Banana Club · 50+ brands already recovering with UniCapture</span>
+      </div>
+    </div>
+
   </div>
-  <div class="flyout-footer">
-    <button class="btn btn-secondary" onclick="closeFlyout()">Cancel</button>
-    <button class="btn btn-primary" id="addSaveBtn" disabled onclick="closeFlyout()">Save Camera</button>
+  <div class="calc-note">
+    <strong>How we calculate:</strong> Industry return rate benchmarks are based on category averages across Indian ecommerce.
+    75% of return-related disputes are rejected without video evidence · UniCapture resolves up to 99% with AWB-linked video proof ·
+    Revenue at Risk = Shipments × Return Rate × 75% × AOV × 12 · Figures are indicative estimates.
   </div>
+  <div class="footer">Unicommerce Information Technologies Pvt. Ltd. · unicommerce.com</div>
 </div>
 
-<!-- ════════════ Edit Camera Flyout ════════════ -->
-<div class="flyout" id="fly-edit">
-  <div class="flyout-header">
-    <h3>Edit Camera</h3>
-    <button class="flyout-close" onclick="closeFlyout()">✕</button>
-  </div>
-  <div class="flyout-body">
-    <div class="field">
-      <label>Camera Name</label>
-      <input type="text" value="Packing Station 1"/>
-    </div>
-    <div class="form-sep">Camera Details</div>
-    <div class="field">
-      <label>Camera Brand</label>
-      <select><option>Hikvision</option><option>Dahua</option><option>CP Plus</option><option>Other</option></select>
-    </div>
-    <div class="row-2">
-      <div class="field"><label>IP Address</label><input type="text" value="192.168.1.101" class="mono"/></div>
-      <div class="field"><label>Port</label><input type="text" value="554" class="mono"/></div>
-    </div>
-    <div class="row-2">
-      <div class="field"><label>Username</label><input type="text" value="admin"/></div>
-      <div class="field"><label>Password</label><input type="password" value="password"/></div>
-    </div>
-    <div class="url-preview">
-      <div class="up-label">RTSP Stream URL</div>
-      <div class="up-val">rtsp://<em>admin</em>:<em>••••••</em>@<em>192.168.1.101</em>:554/Streaming/Channels/101</div>
-    </div>
-    <div class="adv-toggle" onclick="toggleAdv('adv-edit','adv-edit-arrow')">
-      <svg id="adv-edit-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
-        <path d="M3 4.5l3 3 3-3" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      Advanced settings
-    </div>
-    <div class="adv-box" id="adv-edit" style="display:none">
-      <div class="field"><label>Sub-stream URL</label><input type="text" value="rtsp://admin:••••••@192.168.1.101:554/Streaming/Channels/102" class="mono"/></div>
-    </div>
-    <div class="form-sep">Test Connection</div>
-    <div class="test-section" id="editTestSection">
-      <div class="test-header">
-        <div class="test-info">
-          <div class="test-title" id="editTestTitle">Re-verify connection</div>
-          <div class="test-sub">Run after any changes to IP, port, or credentials</div>
-        </div>
-        <button class="btn-test" id="editTestBtn" onclick="runEditTest()">Check Connection →</button>
-      </div>
-      <div class="cam-pip" id="editCamPip">
-        <div class="cam-pip-inner">
-          <div class="cam-bg"></div>
-          <div class="cam-floor"></div>
-          <div class="cam-shelf" style="left:25%;height:50%;bottom:38%"></div>
-          <div class="cam-shelf" style="left:60%;height:55%;bottom:38%"></div>
-          <div class="cam-grid"></div>
-          <div class="cam-scan"></div>
-          <div class="cam-vignette"></div>
-          <div class="cam-corner tl"></div>
-          <div class="cam-corner tr"></div>
-          <div class="cam-corner bl"></div>
-          <div class="cam-corner br"></div>
-          <div class="cam-live"><div class="cam-live-dot"></div>LIVE</div>
-          <div class="cam-ts" id="editCamTs">00:00:00</div>
-          <div class="cam-label">Packing Station 1</div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="flyout-footer">
-    <button class="btn btn-secondary" onclick="closeFlyout()">Cancel</button>
-    <button class="btn btn-primary" onclick="closeFlyout()">Save Changes</button>
-  </div>
-</div>
+<!-- Lead Capture Modal -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="modal" id="modal">
+    <button class="modal-x" onclick="closeModal()">×</button>
 
-<!-- ════════════ Delete Flyout ════════════ -->
-<div class="flyout" id="fly-delete" style="width:400px">
-  <div class="flyout-header">
-    <h3>Delete Camera</h3>
-    <button class="flyout-close" onclick="closeFlyout()">✕</button>
-  </div>
-  <div class="del-body">
-    <div class="del-icon-big">🗑️</div>
-    <h3>Delete this camera?</h3>
-    <p>This will remove the camera configuration from this facility. Existing recordings will not be deleted.</p>
-    <div class="del-badge">🎥 Packing Station 1</div>
-  </div>
-  <div class="flyout-footer">
-    <button class="btn btn-secondary" style="flex:1;justify-content:center" onclick="closeFlyout()">Cancel</button>
-    <button class="btn btn-delete-confirm" onclick="closeFlyout()">Delete Camera</button>
+    <div id="mForm">
+      <div class="modal-saving-pill">
+        🎯 <span id="mPill">You could recover ₹0 / year</span>
+      </div>
+      <h3 id="mHeadline">Your ₹0 recovery starts here</h3>
+      <p>A UniCapture specialist will walk you through the exact setup for your category — typically live within 24 hours.</p>
+
+      <div class="m-field">
+        <label>Your Name</label>
+        <input type="text" id="lName" placeholder="e.g. Ritesh">
+      </div>
+      <div class="m-field">
+        <label>Email</label>
+        <input type="email" id="lEmail" placeholder="you@gmail.com or work email">
+      </div>
+
+      <button class="modal-submit" onclick="submitLead()">Get My Free Setup Plan →</button>
+      <div class="modal-disclaimer">No spam. Our team will reach out within 1 business day.</div>
+    </div>
+
+    <div class="modal-success" id="mSuccess">
+      <div class="success-icon">✅</div>
+      <h3>You're all set!</h3>
+      <p>Our team will email you within 24 hours with a personalised UniCapture setup plan for your business.</p>
+    </div>
   </div>
 </div>
 
 <script>
-let currentType = 'direct';
-let addTsInterval = null;
-let editTsInterval = null;
+  // ── Industry benchmarks (avg return rate % of shipments — Indian ecommerce)
+  const BENCHMARKS = {
+    apparel:     { label: 'Apparel & Fashion',         rate: 25.0 },
+    electronics: { label: 'Electronics & Gadgets',     rate: 9.0  },
+    home:        { label: 'Home & Furniture',           rate: 12.0 },
+    beauty:      { label: 'Beauty & Personal Care',     rate: 10.0 },
+    sports:      { label: 'Sports & Fitness',           rate: 12.0 },
+    fmcg:        { label: 'FMCG / Grocery',             rate: 4.0  },
+    books:       { label: 'Books & Stationery',         rate: 2.0  },
+    other:       { label: 'Overall Ecommerce',          rate: 15.0 },
+  };
 
-
-function openFlyout(which) {
-  closeFlyout(true);
-  document.getElementById('backdrop').classList.add('open');
-  const map = { add:'fly-add', edit:'fly-edit', delete:'fly-delete' };
-  const el = document.getElementById(map[which]);
-  if (el) el.classList.add('open');
-}
-
-function closeFlyout(silent) {
-  document.getElementById('backdrop').classList.remove('open');
-  document.querySelectorAll('.flyout').forEach(f => f.classList.remove('open'));
-  if (!silent) { resetFlyouts(); }
-}
-
-function resetFlyouts() {
-  // Reset Add flyout
-  const as = document.getElementById('addTestSection');
-  if (as) as.className = 'test-section';
-  const at = document.getElementById('addTestTitle');
-  if (at) at.textContent = 'Check before saving';
-  const asub = document.getElementById('addTestSub');
-  if (asub) asub.textContent = 'Verify the camera is reachable on your network';
-  const ab = document.getElementById('addTestBtn');
-  if (ab) { ab.textContent = 'Check Connection →'; ab.disabled = false; ab.style.color = ''; ab.style.borderColor = ''; }
-  const pip = document.getElementById('addCamPip');
-  if (pip) pip.className = 'cam-pip';
-  const sb = document.getElementById('addSaveBtn');
-  if (sb) sb.disabled = true;
-  if (addTsInterval) { clearInterval(addTsInterval); addTsInterval = null; }
-  const banner = document.getElementById('mediamtxBanner');
-  if (banner) { banner.style.display = ''; banner.style.opacity = ''; }
-
-  // Reset Edit flyout
-  const es = document.getElementById('editTestSection');
-  if (es) es.className = 'test-section';
-  const et = document.getElementById('editTestTitle');
-  if (et) et.textContent = 'Re-verify connection';
-  const eb = document.getElementById('editTestBtn');
-  if (eb) { eb.textContent = 'Check Connection →'; eb.disabled = false; eb.style.color = ''; eb.style.borderColor = ''; }
-  const epip = document.getElementById('editCamPip');
-  if (epip) epip.className = 'cam-pip';
-  if (editTsInterval) { clearInterval(editTsInterval); editTsInterval = null; }
-}
-
-
-function toggleNvrGroup(groupId, headerRow) {
-  const MAX_CHIPS = 3;
-  const rows = document.querySelectorAll('tr.' + groupId);
-  const chevron = headerRow.querySelector('.nvr-chevron');
-  const inlineNames = document.getElementById(groupId + '-names');
-  const moreEl = document.getElementById(groupId + '-more');
-  const isVisible = rows.length > 0 && rows[0].style.display !== 'none';
-
-  // toggle camera rows
-  rows.forEach(r => r.style.display = isVisible ? 'none' : '');
-  if (chevron) chevron.classList.toggle('collapsed', isVisible);
-
-  // show/hide inline chips
-  if (inlineNames) {
-    inlineNames.classList.toggle('visible', isVisible);
-    // update "···+N" overflow indicator
-    if (moreEl) {
-      const total = rows.length;
-      const overflow = total - MAX_CHIPS;
-      moreEl.textContent = overflow > 0 ? '···+' + overflow : '';
-    }
+  function fmt(n) {
+    if (n >= 10000000) return '₹' + (n / 10000000).toFixed(2) + ' Cr';
+    if (n >= 100000)   return '₹' + (n / 100000).toFixed(1) + ' L';
+    if (n >= 1000)     return '₹' + (n / 1000).toFixed(1) + 'K';
+    return '₹' + Math.round(n).toLocaleString('en-IN');
   }
-}
 
-function dismissBanner() {
-  const b = document.getElementById('mediamtxBanner');
-  if (b) {
-    b.style.transition = 'opacity .2s';
-    b.style.opacity = '0';
-    setTimeout(() => b.style.display = 'none', 200);
+  function syncSlider() {
+    const el  = document.getElementById('claimRate');
+    const val = parseFloat(el.value);
+    document.getElementById('claimRateVal').textContent = val.toFixed(1) + '%';
+    const min = parseFloat(el.min), max = parseFloat(el.max);
+    const pct = ((val - min) / (max - min)) * 100;
+    el.style.background = `linear-gradient(to right, #1652B8 ${pct}%, #e8eef7 ${pct}%)`;
   }
-}
 
-function selectType(card, type) {
-  document.querySelectorAll('#typeCards .type-card').forEach(c => c.classList.remove('selected'));
-  card.classList.add('selected');
-  currentType = type;
-  const nf = document.getElementById('nvrFields');
-  if (nf) nf.style.display = type === 'nvr' ? 'block' : 'none';
-}
+  function syncAOV() {
+    const el  = document.getElementById('aov');
+    const val = parseInt(el.value);
+    document.getElementById('aovVal').textContent = '₹' + val.toLocaleString('en-IN');
+    const min = parseInt(el.min), max = parseInt(el.max);
+    const pct = ((val - min) / (max - min)) * 100;
+    el.style.background = `linear-gradient(to right, #1652B8 ${pct}%, #e8eef7 ${pct}%)`;
+  }
 
+  function syncShipments() {
+    const el  = document.getElementById('shipments');
+    const val = parseInt(el.value);
+    document.getElementById('shipmentsVal').textContent = val.toLocaleString('en-IN');
+    const min = parseInt(el.min), max = parseInt(el.max);
+    const pct = ((val - min) / (max - min)) * 100;
+    el.style.background = `linear-gradient(to right, #1652B8 ${pct}%, #e8eef7 ${pct}%)`;
+  }
 
-function toggleAdv(id, arrowId) {
-  const el = document.getElementById(id);
-  const ar = document.getElementById(arrowId);
-  if (!el) return;
-  const vis = el.style.display !== 'none';
-  el.style.display = vis ? 'none' : 'block';
-  if (ar) ar.style.transform = vis ? '' : 'rotate(180deg)';
-}
+  function updateBenchmark() {
+    const cat   = document.getElementById('category').value;
+    const bench = BENCHMARKS[cat];
 
-function startClock(elId) {
-  const el = document.getElementById(elId);
-  if (!el) return null;
-  function tick() { el.textContent = new Date().toLocaleTimeString('en-GB'); }
-  tick();
-  return setInterval(tick, 1000);
-}
+    document.getElementById('benchCategoryName').textContent = bench.label;
+    document.getElementById('benchText').textContent = bench.rate + '%';
 
-function runAddTest() {
-  const btn = document.getElementById('addTestBtn');
-  btn.textContent = 'Checking…';
-  btn.disabled = true;
+    // Auto-snap dispute rate slider to industry benchmark
+    const slider = document.getElementById('claimRate');
+    slider.value = bench.rate;
+    syncSlider();
+  }
 
-  setTimeout(() => {
-    // Update test section
-    document.getElementById('addTestSection').classList.add('success');
-    document.getElementById('addTestTitle').textContent = 'Connection verified ✓';
-    document.getElementById('addTestSub').textContent = 'Camera is reachable — live feed active';
-    btn.textContent = 'Re-test';
-    btn.disabled = false;
-    btn.style.color = 'var(--teal)';
-    btn.style.borderColor = 'var(--teal)';
+  let currentTotal = 0;
 
-    // Show PIP
-    const pip = document.getElementById('addCamPip');
-    pip.classList.add('visible');
+  function calculate() {
+    const aov       = parseFloat(document.getElementById('aov').value)       || 0;
+    const shipments = parseFloat(document.getElementById('shipments').value)  || 0;
+    const rate      = parseFloat(document.getElementById('claimRate').value)  || 0;
 
-    // Update camera label with entered name
-    const nameEl = document.getElementById('addCamLabel');
-    const nameInput = document.getElementById('camNameInput');
-    if (nameEl && nameInput && nameInput.value.trim()) {
-      nameEl.textContent = nameInput.value.trim();
-    }
+    const rejRate     = 0.75;  // 75% rejected without proof
+    const resolveRate = 0.99;  // 99% resolved with UniCapture
 
-    // Start clock
-    addTsInterval = startClock('addCamTs');
+    const claimsPerMonth  = shipments * (rate / 100);
+    const revenueAtRisk   = claimsPerMonth * rejRate * aov * 12;
+    const claimsRecovered = revenueAtRisk * resolveRate;
+    const disputes        = Math.round(claimsPerMonth * rejRate * resolveRate * 12);
 
-    // Enable save
-    document.getElementById('addSaveBtn').disabled = false;
-  }, 1800);
-}
+    currentTotal = claimsRecovered;
 
-function runEditTest() {
-  const btn = document.getElementById('editTestBtn');
-  btn.textContent = 'Checking…';
-  btn.disabled = true;
+    const monthly = claimsRecovered / 12;
+    document.getElementById('totalSavings').textContent = fmt(monthly);
+    document.getElementById('totalSub').textContent = 'per month  ·  ' + fmt(claimsRecovered) + ' per year';
 
-  setTimeout(() => {
-    document.getElementById('editTestSection').classList.add('success');
-    document.getElementById('editTestTitle').textContent = 'Connection verified ✓';
-    btn.textContent = 'Re-test';
-    btn.disabled = false;
-    btn.style.color = 'var(--teal)';
-    btn.style.borderColor = 'var(--teal)';
+    // Category trust line
+    const cat = document.getElementById('category').value;
+    document.getElementById('trustLine').innerHTML = TRUST[cat] || TRUST['apparel'];
 
-    const pip = document.getElementById('editCamPip');
-    pip.classList.add('visible');
-    editTsInterval = startClock('editCamTs');
-  }, 1800);
-}
+    updateBenchmark();
+  }
+
+  // Category-specific trust lines
+  const TRUST = {
+    apparel:     'Bearhouse, Palmonas &amp; Banana Club · 50+ brands already recovering with UniCapture',
+    electronics: 'Bearhouse, Palmonas &amp; Banana Club · 50+ brands already recovering with UniCapture',
+    home:        'Bearhouse, Palmonas &amp; Banana Club · 50+ brands already recovering with UniCapture',
+    beauty:      'Bearhouse, Palmonas &amp; Banana Club · 50+ brands already recovering with UniCapture',
+    sports:      'Bearhouse, Palmonas &amp; Banana Club · 50+ brands already recovering with UniCapture',
+    fmcg:        'Bearhouse, Palmonas &amp; Banana Club · 50+ brands already recovering with UniCapture',
+    books:       'Bearhouse, Palmonas &amp; Banana Club · 50+ brands already recovering with UniCapture',
+    other:       'Bearhouse, Palmonas &amp; Banana Club · 50+ brands already recovering with UniCapture',
+  };
+
+  function openModal() {
+    const monthlyTotal = currentTotal / 12;
+    document.getElementById('mPill').textContent = 'You could recover ' + fmt(monthlyTotal) + ' / month';
+    document.getElementById('mHeadline').textContent = 'Your ' + fmt(monthlyTotal) + ' / month recovery starts here';
+    document.getElementById('overlay').classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('overlay').classList.remove('open');
+  }
+  function overlayClick(e) {
+    if (e.target === document.getElementById('overlay')) closeModal();
+  }
+
+  function submitLead() {
+    const name  = document.getElementById('lName').value.trim();
+    const email = document.getElementById('lEmail').value.trim();
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    document.getElementById('lName').classList.toggle('error', !name);
+    document.getElementById('lEmail').classList.toggle('error', !emailOk);
+    if (!name || !emailOk) return;
+
+    document.getElementById('mForm').style.display    = 'none';
+    document.getElementById('mSuccess').style.display = 'block';
+
+    // TODO: POST to CRM / webhook
+    // fetch('/api/leads', { method:'POST', headers:{'Content-Type':'application/json'},
+    //   body: JSON.stringify({ name, email, savings: currentTotal, category: document.getElementById('category').value }) });
+  }
+
+  // ── Init
+  syncAOV();
+  syncShipments();
+  syncSlider();
+  calculate();
 </script>
 </body>
 </html>
